@@ -11,8 +11,13 @@ public class StartClient {
         GameService client = new GameServiceImpl();
         client.startConnection("127.0.0.1", 8080);
         Integer myNum = ThreadLocalRandom.current().nextInt(0, 10);
-        String response = client.sendMessage("name" + myNum.toString());
-        System.out.println(response);
         client.sendMessage("name" + myNum.toString());
+        System.out.println(client.receiveMessage());
+        client.sendMessage("name" + myNum.toString());
+
+        System.out.println(client.receiveMessage());
+        System.out.println(client.receiveMessage());
+        System.out.println(client.receiveMessage());
+        System.out.println(client.receiveMessage());
     }
 }

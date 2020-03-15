@@ -32,7 +32,7 @@ public class Client {
     }
 
     public void sendMessageBySocket(String message) {
-        out.println("some message");
+        out.println(message);
     }
 
     public Socket getClientSocket() {

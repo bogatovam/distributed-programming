@@ -7,10 +7,13 @@ import unn.game.bugs.services.api.GameService;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 public class GameServiceImpl implements GameService {
     // здесь нет базы, чисто взамен нее
     private ConcurrentHashMap<String, Game> activeGames = new ConcurrentHashMap<>();
+
+    private static Logger log = Logger.getLogger(GameServiceImpl.class.getName());
 
     @Override
     public Thread createGame(List<Client> clientList) {
@@ -58,6 +61,7 @@ public class GameServiceImpl implements GameService {
     public void broadcast(String gameId, String message) {
         Optional.ofNullable(activeGames.get(gameId))
                 .ifPresent((game -> {
+                    log.info("Try to brodcasting send message");
                     game.getPlayers().forEach(players -> {
                         players.sendMessageBySocket(message);
                     });

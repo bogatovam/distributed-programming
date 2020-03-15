@@ -19,8 +19,12 @@ public class GameServiceImpl implements GameService {
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
-    public String sendMessage(String msg) throws IOException {
+    public void sendMessage(String msg) throws IOException {
         out.println(msg);
+    }
+
+    @Override
+    public String receiveMessage() throws IOException {
         String resp = in.readLine();
         return resp;
     }

@@ -1,6 +1,5 @@
 package unn.game.bugs.services.impl;
 
-import unn.game.bugs.models.ClientHandler;
 import unn.game.bugs.services.api.ConnectionService;
 import unn.game.bugs.services.api.ServerManager;
 
