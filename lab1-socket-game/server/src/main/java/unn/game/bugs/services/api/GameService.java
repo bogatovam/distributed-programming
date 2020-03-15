@@ -1,4 +1,4 @@
 package unn.game.bugs.services.api;
 
-public class ConnectionManager {
+public class GameService {
 }
