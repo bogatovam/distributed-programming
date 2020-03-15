@@ -1,5 +1,6 @@
 package unn.game.bugs.services.api;
 
+import java.io.IOException;
 import java.net.Socket;
 
 public interface ConnectionService {
@@ -11,5 +12,5 @@ public interface ConnectionService {
 
     void deleteGameSession();
 
-    void addClient(Socket clientSocket);
+    void addClient(Socket clientSocket) throws IOException;
 }

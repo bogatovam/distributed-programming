@@ -5,6 +5,7 @@ import unn.game.bugs.models.Client;
 import unn.game.bugs.services.api.ConnectionService;
 import unn.game.bugs.services.api.GameService;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,13 +39,12 @@ public class ConnectionServiceImpl implements ConnectionService {
     }
 
     @Override
-    public void addClient(Socket clientSocket) {
+    public void addClient(Socket clientSocket) throws IOException {
         // обрабатывать в отдельном потоке одно условие не обязательно: это лишнее усложнение в данном случае
         // если от клиентов необходимо прочитать какое то "приветственное сообщение", то тогда придется
-        if(pendingClients.size() < Constants.PLAYERS_COUNT - 1) {
-            pendingClients.add(new Client(clientSocket));
-            log.info("Unknown client was added in pending list");
-        } else {
+        pendingClients.add(new Client(clientSocket));
+
+        if(pendingClients.size() == Constants.PLAYERS_COUNT ) {
             startGameSession();
         }
     }
