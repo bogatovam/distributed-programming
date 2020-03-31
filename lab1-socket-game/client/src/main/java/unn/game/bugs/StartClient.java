@@ -1,23 +1,25 @@
 package unn.game.bugs;
 
-import unn.game.bugs.services.api.GameService;
-import unn.game.bugs.services.impl.GameServiceImpl;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.concurrent.ThreadLocalRandom;
 
-public class StartClient {
+public class StartClient extends Application {
     public static void main(String[] args) throws IOException {
-        GameService client = new GameServiceImpl();
-        client.startConnection("127.0.0.1", 8080);
-        Integer myNum = ThreadLocalRandom.current().nextInt(0, 10);
-        client.sendMessage("name" + myNum.toString());
-        System.out.println(client.receiveMessage());
-        client.sendMessage("name" + myNum.toString());
+        launch();
+    }
 
-        System.out.println(client.receiveMessage());
-        System.out.println(client.receiveMessage());
-        System.out.println(client.receiveMessage());
-        System.out.println(client.receiveMessage());
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getResource("/unn/game/bugs/entrypoint.fxml"));
+        Scene scene = new Scene(root, 420, 375);
+        scene.getStylesheets().add(getClass().getResource("/unn/game/bugs/style.css").toExternalForm());
+        primaryStage.setTitle("Hello World");
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 }

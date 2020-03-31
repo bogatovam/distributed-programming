@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.ColorAdjust?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<GridPane fx:controller="unn.game.bugs.controllers.EntryPointController"
+          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
+    <padding>
+        <Insets top="5" right="25" bottom="10" left="25"/>
+    </padding>
+
+    <TextField fx:id="userNameField" promptText="email@lingualeo.com"
+               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+
+    <HBox GridPane.columnIndex="1" GridPane.rowIndex="3" alignment="TOP_CENTER" styleClass="startButton">
+        <Button fx:id="startButton" text="Start Game" disable="true" onAction="#handleStartButtonAction"/>
+    </HBox>
+
+</GridPane>
