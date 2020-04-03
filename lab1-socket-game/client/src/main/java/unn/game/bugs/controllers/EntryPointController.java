@@ -1,50 +1,51 @@
 package unn.game.bugs.controllers;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-import unn.game.bugs.services.api.GameService;
-import unn.game.bugs.services.impl.GameServiceImpl;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
+import unn.game.bugs.services.api.ConnectionService;
+import unn.game.bugs.services.api.RenderingService;
+import unn.game.bugs.services.impl.ConnectionServiceImpl;
+import unn.game.bugs.services.impl.RenderingServiceImpl;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class EntryPointController implements Initializable {
-    public TextField userName;
 
     @FXML
-    protected void handleStartButtonAction() {
-        Thread t = new Thread(
-                () -> {
-                    GameService client = new GameServiceImpl();
-                    try {
-                        client.startConnection("127.0.0.1", 8080);
+    private TextField userNameTextField;
 
-                        Integer myNum = ThreadLocalRandom.current().nextInt(0, 10);
-                        client.sendMessage("name" + myNum.toString());
-                        System.out.println(client.receiveMessage());
-                        client.sendMessage("name" + myNum.toString());
-                        System.out.println(client.receiveMessage());
-                        System.out.println(client.receiveMessage());
-                        System.out.println(client.receiveMessage());
-                        System.out.println(client.receiveMessage());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-        );
-        t.start();
-    }
+    @FXML
+    private Button startGameButton;
+    @FXML
+    private Label errorMessage;
+
+    private final ConnectionService connectionService = new ConnectionServiceImpl();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        errorMessage.setVisible(false);
 
+        startGameButton.setOnAction(actionEvent -> {
+            if (StringUtils.isEmpty(userNameTextField.getCharacters())) {
+                errorMessage.setVisible(true);
+            } else {
+                connectionService.createConnection();
+            }
+        });
     }
 }

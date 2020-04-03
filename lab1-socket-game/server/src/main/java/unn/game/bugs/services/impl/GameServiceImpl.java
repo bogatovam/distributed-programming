@@ -1,5 +1,6 @@
 package unn.game.bugs.services.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import unn.game.bugs.models.Client;
 import unn.game.bugs.models.Game;
 import unn.game.bugs.services.api.GameService;
@@ -7,13 +8,11 @@ import unn.game.bugs.services.api.GameService;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
+@Slf4j
 public class GameServiceImpl implements GameService {
     // здесь нет базы, чисто взамен нее
     private ConcurrentHashMap<String, Game> activeGames = new ConcurrentHashMap<>();
-
-    private static Logger log = Logger.getLogger(GameServiceImpl.class.getName());
 
     @Override
     public Thread createGame(List<Client> clientList) {
@@ -61,7 +60,7 @@ public class GameServiceImpl implements GameService {
     public void broadcast(String gameId, String message) {
         Optional.ofNullable(activeGames.get(gameId))
                 .ifPresent((game -> {
-                    log.info("Try to brodcasting send message");
+                    log.trace("Broadcast message");
                     game.getPlayers().forEach(players -> {
                         players.sendMessageBySocket(message);
                     });

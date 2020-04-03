@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="329.0" prefWidth="541.0" style="-fx-background-color: #293E6F;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="unn.game.bugs.controllers.ErrorsController">
+   <children>
+      <AnchorPane layoutX="93.0" layoutY="84.0" prefHeight="161.0" prefWidth="354.0" style="-fx-background-color: #fafafa; -fx-background-radius: 30;">
+         <children>
+            <Label fx:id="errorMessage" layoutX="132.0" layoutY="69.0" style="-fx-wrap-text: true;" text="Ошибка: " textFill="#293e6f">
+               <font>
+                  <Font name="Segoe UI Bold" size="20.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>
