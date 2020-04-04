@@ -1,13 +1,7 @@
 package unn.game.bugs.services.api;
 
-import java.io.IOException;
+import unn.game.bugs.models.Client;
 
 public interface ConnectionService {
-    void createConnection();
-
-    void stopConnection() throws IOException;
-
-    void sendMessage(String msg) throws IOException;
-
-    String receiveMessage() throws IOException;
+    Client createConnection(String clientName);
 }

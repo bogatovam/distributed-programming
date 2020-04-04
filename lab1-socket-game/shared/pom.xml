@@ -4,25 +4,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
-    <artifactId>server</artifactId>
+    <groupId>com.unn.game.bugs</groupId>
+    <artifactId>shared</artifactId>
     <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <javafx.version>13</javafx.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.12</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.9</version>
         </dependency>
-        <dependency>
-            <groupId>com.unn.game.bugs</groupId>
-            <artifactId>shared</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -36,6 +37,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

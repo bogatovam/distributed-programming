@@ -18,7 +18,6 @@ public class RenderingServiceImpl implements RenderingService {
             Parent root = FXMLLoader.load(getClass().getResource("/unn/game/bugs/game.fxml"));
 
             Stage stage = new Stage();
-            stage.setTitle("My New Stage Title");
             stage.setScene(new Scene(root/*, 450, 450*/));
             stage.show();
         } catch (IOException e) {

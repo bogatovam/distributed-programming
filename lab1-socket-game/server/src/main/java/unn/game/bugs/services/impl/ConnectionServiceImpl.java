@@ -1,6 +1,7 @@
 package unn.game.bugs.services.impl;
 
-import unn.game.bugs.Constants;
+import lombok.extern.slf4j.Slf4j;
+import unn.game.bugs.models.Constants;
 import unn.game.bugs.models.Client;
 import unn.game.bugs.services.api.ConnectionService;
 import unn.game.bugs.services.api.GameService;
@@ -9,13 +10,12 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+@Slf4j
 public class ConnectionServiceImpl implements ConnectionService {
     private GameService gameService = new GameServiceImpl();
     private List<Client> pendingClients = new ArrayList<>();
 
-    private static Logger log = Logger.getLogger(ConnectionServiceImpl.class.getName());
     @Override
     public void addPlayer() {
 

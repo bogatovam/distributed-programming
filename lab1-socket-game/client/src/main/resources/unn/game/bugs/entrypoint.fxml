@@ -12,7 +12,7 @@ fx:controller="unn.game.bugs.controllers.EntryPointController">
    <children>
       <AnchorPane layoutX="119.0" layoutY="63.0" prefHeight="204.0" prefWidth="302.0" style="-fx-background-color: #fafafa; -fx-background-radius: 30;">
          <children>
-            <TextField fx:id="userNameTextField" layoutX="46.0" layoutY="95.0" prefHeight="26.0" prefWidth="210.0" />
+            <TextField fx:id="clientNameTextField" layoutX="46.0" layoutY="95.0" prefHeight="26.0" prefWidth="210.0" />
             <Button fx:id="startGameButton" layoutX="85.0" layoutY="137.0" mnemonicParsing="false" style="-fx-background-color: #293E6F; -fx-background-radius: 30;" text="Начать игру" textAlignment="CENTER" textFill="WHITE">
                <font>
                   <Font name="Segoe UI Bold" size="18.0" />

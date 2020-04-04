@@ -6,6 +6,7 @@ import unn.game.bugs.models.Game;
 import unn.game.bugs.services.api.GameService;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,8 +24,12 @@ public class GameServiceImpl implements GameService {
 
             gameToCreate.getPlayers()
                     .forEach(player -> {
-                        player.sendMessageBySocket(uuid);
-                        getGameProcessThread(uuid, player).start();
+                        try {
+                            player.sendMessage(uuid);
+                            getGameProcessThread(uuid, player).start();
+                        } catch (ConnectException e) {
+                            e.printStackTrace();
+                        }
                     });
         });
     }
@@ -35,7 +40,7 @@ public class GameServiceImpl implements GameService {
                 while (true) {
                     if (!client.getClientSocket().isClosed()) {
                         // ход
-                        String message = client.readMessageFromSocket();
+                        String message = client.receiveMessage();
                         this.broadcast(gameId, message);
                     } else {
                         // дисконект, закрываем все с ошибкой
@@ -53,7 +58,13 @@ public class GameServiceImpl implements GameService {
     public void finishGame(String gameId) {
         Optional.ofNullable(activeGames.get(gameId))
                 .ifPresent((game -> {
-                    game.getPlayers().forEach(Client::closeConnection);
+                    game.getPlayers().forEach( p -> {
+                        try {
+                            p.stopConnection();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
                 }));
     }
 
@@ -62,7 +73,11 @@ public class GameServiceImpl implements GameService {
                 .ifPresent((game -> {
                     log.trace("Broadcast message");
                     game.getPlayers().forEach(players -> {
-                        players.sendMessageBySocket(message);
+                        try {
+                            players.sendMessage(message);
+                        } catch (ConnectException e) {
+                            e.printStackTrace();
+                        }
                     });
                 }));
     }
