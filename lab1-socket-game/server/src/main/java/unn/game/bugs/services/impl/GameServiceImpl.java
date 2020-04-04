@@ -58,7 +58,7 @@ public class GameServiceImpl implements GameService {
     public void finishGame(String gameId) {
         Optional.ofNullable(activeGames.get(gameId))
                 .ifPresent((game -> {
-                    game.getPlayers().forEach( p -> {
+                    game.getPlayers().forEach(p -> {
                         try {
                             p.stopConnection();
                         } catch (IOException e) {
