@@ -1,42 +1,42 @@
 package unn.game.bugs.models;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import unn.game.bugs.models.ui.ClientDescription;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
 
 @Data
+@Slf4j
 public class Client {
     // что будет, если этот сокет одновременно используется в потоках разных игроков
     private Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
 
     private ClientDescription description;
 
     public Client(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+        this.out = new ObjectOutputStream(clientSocket.getOutputStream());
+        this.in = new ObjectInputStream(clientSocket.getInputStream());
     }
 
-    public void sendMessage(String msg) throws ConnectException {
+    public <T> void sendMessage(T objectMessage) throws ConnectException, IOException {
         if (out == null) {
             throw new ConnectException("There is no connection: socket is null");
         }
-        out.println(msg);
+        out.writeObject(objectMessage);
     }
 
-    public String receiveMessage() throws IOException {
+    public <T> T receiveMessage() throws ConnectException, IOException, ClassNotFoundException {
         if (in == null) {
             throw new ConnectException("There is no connection: socket is null");
         }
-        return in.readLine();
+        return (T) in.readObject();
     }
 
     public void stopConnection() throws IOException {

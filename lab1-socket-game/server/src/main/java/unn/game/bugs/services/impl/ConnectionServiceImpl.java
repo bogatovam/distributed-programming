@@ -30,7 +30,7 @@ public class ConnectionServiceImpl implements ConnectionService {
     public void startGameSession() {
         gameService.createGame(pendingClients).start();
         pendingClients.clear();
-        log.info("Game was started");
+        log.debug("Game was started");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ConnectionServiceImpl implements ConnectionService {
         // обрабатывать в отдельном потоке одно условие не обязательно: это лишнее усложнение в данном случае
         // если от клиентов необходимо прочитать какое то "приветственное сообщение", то тогда придется
         pendingClients.add(new Client(clientSocket));
-
+        log.debug("Add client socket");
         if(pendingClients.size() == Constants.PLAYERS_COUNT ) {
             startGameSession();
         }

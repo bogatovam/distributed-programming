@@ -1,7 +1,7 @@
 package unn.game.bugs.services.api;
 
-import java.io.IOException;
+import unn.game.bugs.models.Client;
 
 public interface GameService {
-
+    void startGame(Client client);
 }

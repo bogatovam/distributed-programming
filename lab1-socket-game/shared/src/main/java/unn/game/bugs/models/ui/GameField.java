@@ -4,6 +4,7 @@ import lombok.Data;
 import unn.game.bugs.models.ui.Bug;
 import unn.game.bugs.models.ui.FieldCell;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -11,7 +12,7 @@ import java.util.Random;
 import static unn.game.bugs.models.Constants.*;
 
 @Data
-public class GameField {
+public class GameField implements Serializable {
     private FieldCell[][] field = new FieldCell[FIELD_SIZE_X][FIELD_SIZE_Y];
 
     public GameField(List<ClientDescription> clientDescriptionList) {

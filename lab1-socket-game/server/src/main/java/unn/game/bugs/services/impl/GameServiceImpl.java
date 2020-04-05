@@ -3,6 +3,7 @@ package unn.game.bugs.services.impl;
 import lombok.extern.slf4j.Slf4j;
 import unn.game.bugs.models.Client;
 import unn.game.bugs.models.Game;
+import unn.game.bugs.models.message.ServerMessage;
 import unn.game.bugs.services.api.GameService;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Thread createGame(List<Client> clientList) {
+        log.debug("Start create game with client list: {}", clientList);
         Game gameToCreate = new Game(clientList);
         return new Thread(() -> {
             String uuid = UUID.randomUUID().toString();
@@ -25,9 +27,11 @@ public class GameServiceImpl implements GameService {
             gameToCreate.getPlayers()
                     .forEach(player -> {
                         try {
-                            player.sendMessage(uuid);
-                            getGameProcessThread(uuid, player).start();
+                            player.sendMessage(ServerMessage.builder().gameId(uuid).build());
+                            // getGameProcessThread(uuid, player).start();
                         } catch (ConnectException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     });
@@ -49,7 +53,7 @@ public class GameServiceImpl implements GameService {
                     }
 
                 }
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         });
@@ -71,11 +75,13 @@ public class GameServiceImpl implements GameService {
     public void broadcast(String gameId, String message) {
         Optional.ofNullable(activeGames.get(gameId))
                 .ifPresent((game -> {
-                    log.trace("Broadcast message");
+                    log.debug("Broadcast message");
                     game.getPlayers().forEach(players -> {
                         try {
                             players.sendMessage(message);
                         } catch (ConnectException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     });

@@ -33,8 +33,9 @@ public class ConnectionServiceImpl implements ConnectionService {
         return client;
     }
 
-    protected void processAfterConnection(Client client, String clientName) throws ConnectException {
-        client.setDescription(new ClientDescription(clientName));
-        client.sendMessage(clientName);
+    protected void processAfterConnection(Client client, String clientName) throws ConnectException, IOException {
+        ClientDescription description = new ClientDescription(clientName);
+        client.setDescription(description);
+        client.sendMessage(description);
     }
 }
