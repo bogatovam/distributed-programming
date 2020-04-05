@@ -1,16 +1,15 @@
 package unn.game.bugs.services.api;
 
+import unn.game.bugs.models.Client;
+
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
 
 public interface ConnectionService {
-    void addPlayer();
+    boolean addClient(Socket clientSocket) throws IOException;
 
-    void deletePlayer();
+    <T> void broadcast(List<Client> clients, T message);
 
-    void startGameSession();
-
-    void deleteGameSession();
-
-    void addClient(Socket clientSocket) throws IOException;
+    List<Client> getPendingClientsAndClear();
 }

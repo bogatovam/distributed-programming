@@ -1,20 +1,16 @@
 package unn.game.bugs.models;
 
+import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
+import unn.game.bugs.models.ui.GameDescription;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@Builder
+@Data
 @EqualsAndHashCode
 public class Game {
     private List<Client> players;
-
-    public Game(List<Client> players) {
-        this.players = new ArrayList<>();
-        this.players.addAll(players);
-    }
-
-    public List<Client> getPlayers() {
-        return players;
-    }
+    private GameDescription gameDescription;
 }

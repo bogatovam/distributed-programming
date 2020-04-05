@@ -12,10 +12,12 @@ import java.util.Random;
 import static unn.game.bugs.models.Constants.*;
 
 @Data
-public class GameField implements Serializable {
+public class GameDescription implements Serializable {
+    private String gameId;
     private FieldCell[][] field = new FieldCell[FIELD_SIZE_X][FIELD_SIZE_Y];
 
-    public GameField(List<ClientDescription> clientDescriptionList) {
+    public GameDescription(final String gameId, List<ClientDescription> clientDescriptionList) {
+        this.gameId = gameId;
         this.generateField(clientDescriptionList);
     }
 

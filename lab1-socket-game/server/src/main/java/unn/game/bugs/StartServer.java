@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class StartServer {
     public static void main(String[] args) throws IOException {
-        ServerManager serverManager = new ServerManagerImpl();
+        ServerManager serverManager = ServerManagerImpl.getInstance();
         serverManager.createAndStartServer(Constants.SERVER_PORT);
     }
 }

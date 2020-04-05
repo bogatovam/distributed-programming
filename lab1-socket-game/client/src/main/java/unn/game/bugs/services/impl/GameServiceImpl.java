@@ -10,7 +10,12 @@ import java.io.IOException;
 
 @Slf4j
 public class GameServiceImpl implements GameService {
-    private final RenderingService renderingService = new RenderingServiceImpl();
+    private final RenderingService renderingService = RenderingServiceImpl.getInstance();
+
+    private static GameServiceImpl instance = new GameServiceImpl();
+
+    private GameServiceImpl() {
+    }
 
     @Override
     public void startGame(Client client) {
@@ -21,5 +26,9 @@ public class GameServiceImpl implements GameService {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public static GameServiceImpl getInstance() {
+        return instance;
     }
 }

@@ -3,38 +3,70 @@ package unn.game.bugs.services.impl;
 import lombok.extern.slf4j.Slf4j;
 import unn.game.bugs.models.Client;
 import unn.game.bugs.models.Game;
+import unn.game.bugs.models.message.ClientMessage;
+import unn.game.bugs.models.message.ResultMessage;
 import unn.game.bugs.models.message.ServerMessage;
+import unn.game.bugs.models.ui.ClientDescription;
+import unn.game.bugs.models.ui.GameDescription;
+import unn.game.bugs.services.api.ConnectionService;
 import unn.game.bugs.services.api.GameService;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import static unn.game.bugs.models.Constants.UNPROCESSABLE_MESSAGE_FROM_CLIENT;
 
 @Slf4j
 public class GameServiceImpl implements GameService {
-    // здесь нет базы, чисто взамен нее
+    // здесь нет базы, это взамен нее
     private ConcurrentHashMap<String, Game> activeGames = new ConcurrentHashMap<>();
+    private final ConnectionService connectionService = ConnectionServiceImpl.getInstance();
+
+    private static GameServiceImpl instance = new GameServiceImpl();
+
+    private GameServiceImpl() {
+    }
 
     @Override
     public Thread createGame(List<Client> clientList) {
-        log.debug("Start create game with client list: {}", clientList);
-        Game gameToCreate = new Game(clientList);
+        log.debug("Start creating game with clients: {}", clientList);
+
         return new Thread(() -> {
             String uuid = UUID.randomUUID().toString();
-            activeGames.put(uuid, gameToCreate);
 
-            gameToCreate.getPlayers()
-                    .forEach(player -> {
+            List<ClientDescription> clientsDescription = clientList.stream()
+                    .map(client -> {
                         try {
-                            player.sendMessage(ServerMessage.builder().gameId(uuid).build());
-                            // getGameProcessThread(uuid, player).start();
-                        } catch (ConnectException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            return client.receiveMessage();
+                        } catch (IOException | ClassNotFoundException e) {
+                            log.error(UNPROCESSABLE_MESSAGE_FROM_CLIENT);
+                            return ClientMessage.builder().build();
                         }
-                    });
+                    })
+                    .map(ClientMessage::getClientDescription)
+                    .collect(Collectors.toList());
+
+            Game newGame = Game.builder()
+                    .gameDescription(new GameDescription(uuid, clientsDescription))
+                    .players(clientList)
+                    .build();
+
+            // save game in list with all active games
+            activeGames.put(uuid, newGame);
+            // send init game to all client
+            ServerMessage initMessage = ServerMessage.builder()
+                    .message(ResultMessage.CONNECTION_SUCCESSFUL)
+                    .allClients(clientsDescription)
+                    .gameDescription(newGame.getGameDescription())
+                    .build();
+            // send init game to all client
+            connectionService.broadcast(clientList, initMessage);
+
+            newGame.getPlayers()
+                    .forEach(player -> getGameProcessThread(newGame.getGameDescription().getGameId()
+                            , player).start());
         });
     }
 
@@ -44,11 +76,15 @@ public class GameServiceImpl implements GameService {
                 while (true) {
                     if (!client.getClientSocket().isClosed()) {
                         // ход
-                        String message = client.receiveMessage();
-                        this.broadcast(gameId, message);
+                        ClientMessage message = client.receiveMessage();
+                        log.debug("Receive message {} fom client {}", message, client.getDescription().getName());
+                        // Optional.ofNullable(activeGames.get(gameId))
+                        //         .ifPresent(game -> connectionService.broadcast(game.getPlayers(), message));
                     } else {
-                        // дисконект, закрываем все с ошибкой
-                        this.broadcast(gameId, "error");
+                        // дисконект, закрываем всех с ошибкой
+                        ServerMessage message = ServerMessage.builder().message(ResultMessage.CONNECTION_ABORTED).build();
+                        Optional.ofNullable(activeGames.get(gameId))
+                                .ifPresent(game -> connectionService.broadcast(game.getPlayers(), message));
                         this.finishGame(gameId);
                     }
 
@@ -72,19 +108,8 @@ public class GameServiceImpl implements GameService {
                 }));
     }
 
-    public void broadcast(String gameId, String message) {
-        Optional.ofNullable(activeGames.get(gameId))
-                .ifPresent((game -> {
-                    log.debug("Broadcast message");
-                    game.getPlayers().forEach(players -> {
-                        try {
-                            players.sendMessage(message);
-                        } catch (ConnectException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }));
+    public static GameServiceImpl getInstance() {
+        return instance;
     }
+
 }

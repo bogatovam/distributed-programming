@@ -2,6 +2,7 @@ package unn.game.bugs.services.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import unn.game.bugs.models.Client;
+import unn.game.bugs.models.message.ClientMessage;
 import unn.game.bugs.models.ui.ClientDescription;
 import unn.game.bugs.services.api.ConnectionService;
 import unn.game.bugs.services.api.RenderingService;
@@ -10,11 +11,15 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 
-import static unn.game.bugs.models.Constants.SERVER_PORT;
+import static unn.game.bugs.models.Constants.*;
 
 @Slf4j
 public class ConnectionServiceImpl implements ConnectionService {
-    private final RenderingService renderingService = new RenderingServiceImpl();
+    private final RenderingService renderingService = RenderingServiceImpl.getInstance();
+    private static ConnectionServiceImpl instance = new ConnectionServiceImpl();
+
+    private ConnectionServiceImpl() {
+    }
 
     @Override
     public Client createConnection(String clientName) {
@@ -24,11 +29,11 @@ public class ConnectionServiceImpl implements ConnectionService {
             this.processAfterConnection(client, clientName);
             return client;
         } catch (ConnectException e) {
-            log.error("Error connecting to server: " + e.getMessage());
-            renderingService.buildErrorScene("Error connecting to server: " + e.getMessage());
+            log.error(SERVER_CONNECTION_ERROR + ": " + e.getMessage());
+            renderingService.buildErrorScene(SERVER_CONNECTION_ERROR);
         } catch (IOException e) {
-            log.error("Unprocessable message from server: " + e.getMessage());
-            renderingService.buildErrorScene("Unprocessable message from server: " + e.getMessage());
+            log.error(UNPROCESSABLE_MESSAGE_FROM_SERVER + ": " + e.getMessage());
+            renderingService.buildErrorScene(UNPROCESSABLE_MESSAGE_FROM_SERVER);
         }
         return client;
     }
@@ -36,6 +41,10 @@ public class ConnectionServiceImpl implements ConnectionService {
     protected void processAfterConnection(Client client, String clientName) throws ConnectException, IOException {
         ClientDescription description = new ClientDescription(clientName);
         client.setDescription(description);
-        client.sendMessage(description);
+        client.sendMessage(ClientMessage.builder().clientDescription(description).build());
+    }
+
+    public static ConnectionServiceImpl getInstance() {
+        return instance;
     }
 }

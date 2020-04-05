@@ -12,6 +12,12 @@ import java.io.IOException;
 
 @Slf4j
 public class RenderingServiceImpl implements RenderingService {
+
+    private static RenderingServiceImpl instance = new RenderingServiceImpl();
+
+    private RenderingServiceImpl() {
+    }
+
     @Override
     public void buildGameScene() {
         try {
@@ -44,5 +50,9 @@ public class RenderingServiceImpl implements RenderingService {
         } catch (IOException e) {
             log.error("Something went wrong with loading fxml: " + e.getMessage());
         }
+    }
+
+    public static RenderingServiceImpl getInstance() {
+        return instance;
     }
 }

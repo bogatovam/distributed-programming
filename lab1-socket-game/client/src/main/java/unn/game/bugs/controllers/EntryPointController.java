@@ -25,8 +25,8 @@ public class EntryPointController implements Initializable {
     @FXML
     private Label errorMessage;
 
-    private final ConnectionService connectionService = new ConnectionServiceImpl();
-    private final GameService gameService = new GameServiceImpl();
+    private final ConnectionService connectionService = ConnectionServiceImpl.getInstance();
+    private final GameService gameService = GameServiceImpl.getInstance();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -36,6 +36,7 @@ public class EntryPointController implements Initializable {
             if (StringUtils.isEmpty(clientNameTextField.getCharacters())) {
                 errorMessage.setVisible(true);
             } else {
+                // TODO move to thread
                 Client client = connectionService.createConnection(clientNameTextField.getCharacters().toString());
                 gameService.startGame(client);
             }
