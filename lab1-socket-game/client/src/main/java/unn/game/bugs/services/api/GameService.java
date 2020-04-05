@@ -4,4 +4,10 @@ import unn.game.bugs.models.Client;
 
 public interface GameService {
     void startGame(Client client);
+
+    void skipMove();
+
+    void stopGame();
+
+    void makeMove(double x, double y);
 }

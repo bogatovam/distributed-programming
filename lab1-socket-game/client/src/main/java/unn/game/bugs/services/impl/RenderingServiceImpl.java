@@ -8,12 +8,15 @@ import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import unn.game.bugs.controllers.ErrorsController;
 import unn.game.bugs.controllers.GameController;
+import unn.game.bugs.models.Point;
 import unn.game.bugs.models.ui.ClientDescription;
 import unn.game.bugs.models.ui.GameDescription;
 import unn.game.bugs.services.api.RenderingService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -22,11 +25,14 @@ public class RenderingServiceImpl implements RenderingService {
     GraphicsContext context;
     private static RenderingServiceImpl instance = new RenderingServiceImpl();
 
+    private double scale_x;
+    private double scale_y;
+
     private RenderingServiceImpl() {
     }
 
     @Override
-    public void buildGameScene(GameDescription gameDescription, List<ClientDescription> allClients, ClientDescription clientDescription) {
+    public void buildGameScene(GameDescription gameDescription, Map<String, ClientDescription> allClients, ClientDescription clientDescription) {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
@@ -39,8 +45,8 @@ public class RenderingServiceImpl implements RenderingService {
             this.gameController = loader.getController();
             this.context = this.gameController.gameField.getGraphicsContext2D();
 
-            this.drawGameField(gameDescription, clientDescription);
-            this.drawActivePlayers(allClients);
+            this.drawGameField(gameDescription, allClients);
+            this.drawActivePlayers(new ArrayList<>(allClients.values()));
 
             stage.show();
         } catch (IOException e) {
@@ -69,21 +75,33 @@ public class RenderingServiceImpl implements RenderingService {
         }
     }
 
-    private void drawGameField(GameDescription gameDescription, ClientDescription clientDescription) {
+    @Override
+    public Point getFieldPointByCanvasCoords(double x, double y) {
+        return new Point((int) (x / scale_x), (int) (y / scale_y));
+    }
 
-        double scaleX = this.gameController.gameField.widthProperty().divide(gameDescription.getField().length).doubleValue();
-        double scaleY = this.gameController.gameField.heightProperty().divide(gameDescription.getField()[0].length).doubleValue();
+    @Override
+    public void drawGameField(GameDescription gameDescription, Map<String, ClientDescription> allClients) {
 
-        log.debug("Scales [x,y]: [{},{}]", scaleX, scaleY);
+        this.scale_x = this.gameController.gameField.widthProperty().divide(gameDescription.getField().length).doubleValue();
+        this.scale_y = this.gameController.gameField.heightProperty().divide(gameDescription.getField()[0].length).doubleValue();
+
+        log.debug("Scales [x,y]: [{},{}]", this.scale_x, this.scale_y);
 
         for (int i = 0; i < gameDescription.getField().length; i++) {
             for (int j = 0; j < gameDescription.getField()[i].length; j++) {
                 context.setFill(Color.LIGHTGRAY);
-                context.fillRect(i * scaleX, j * scaleY, scaleX, scaleY);
+                context.fillRect(i * scale_x, j * scale_y, scale_x, scale_y);
                 if (!gameDescription.getField()[i][j].isEmpty()) {
-                    this.drawBugCell(i * scaleX + 1, j * scaleY + 1, scaleX - 10, scaleY - 10, clientDescription.getColor());
+                    ClientDescription clientDescription = allClients.get(gameDescription.getField()[i][j].getBug().getSetBy());
+                    this.drawBugCell(i * scale_x + 1, j * scale_y + 1, scale_x - 10, scale_y - 10,
+                            Color.color(
+                                    clientDescription.getColor().getR(),
+                                    clientDescription.getColor().getG(),
+                                    clientDescription.getColor().getB())
+                    );
                 } else {
-                    this.drawEmptyCell(i * scaleX + 1, j * scaleY + 1, scaleX - 2, scaleY - 2);
+                    this.drawEmptyCell(i * scale_x + 1, j * scale_y + 1, scale_x - 2, scale_y - 2);
                 }
             }
         }
@@ -120,6 +138,7 @@ public class RenderingServiceImpl implements RenderingService {
         );
         gameController.players.setVisible(true);
     }
+
 
     public static RenderingServiceImpl getInstance() {
         return instance;

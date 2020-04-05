@@ -7,11 +7,12 @@ import unn.game.bugs.models.ui.GameDescription;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
 public class ServerMessage implements Serializable {
     private ResultMessage message;
-    private List<ClientDescription> allClients;
+    private Map<String, ClientDescription> allClients;
     private GameDescription gameDescription;
 }

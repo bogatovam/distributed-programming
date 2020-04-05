@@ -14,6 +14,7 @@ import unn.game.bugs.services.api.GameService;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static unn.game.bugs.models.Constants.UNPROCESSABLE_MESSAGE_FROM_CLIENT;
@@ -36,7 +37,7 @@ public class GameServiceImpl implements GameService {
         return new Thread(() -> {
             String uuid = UUID.randomUUID().toString();
 
-            List<ClientDescription> clientsDescription = clientList.stream()
+            Map<String, ClientDescription> clientsDescription = clientList.stream()
                     .map(client -> {
                         try {
                             return client.receiveMessage();
@@ -46,7 +47,7 @@ public class GameServiceImpl implements GameService {
                         }
                     })
                     .map(ClientMessage::getClientDescription)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toMap(ClientDescription::getId, Function.identity()));
 
             Game newGame = Game.builder()
                     .gameDescription(new GameDescription(uuid, clientsDescription))
@@ -65,8 +66,9 @@ public class GameServiceImpl implements GameService {
             connectionService.broadcast(clientList, initMessage);
 
             newGame.getPlayers()
-                    .forEach(player -> getGameProcessThread(newGame.getGameDescription().getGameId()
-                            , player).start());
+                    .forEach(player -> getGameProcessThread(newGame.getGameDescription().getGameId(), player)
+                            .start()
+                    );
         });
     }
 
@@ -78,8 +80,7 @@ public class GameServiceImpl implements GameService {
                         // ход
                         ClientMessage message = client.receiveMessage();
                         log.debug("Receive message {} fom client {}", message, client.getDescription().getName());
-                        // Optional.ofNullable(activeGames.get(gameId))
-                        //         .ifPresent(game -> connectionService.broadcast(game.getPlayers(), message));
+
                     } else {
                         // дисконект, закрываем всех с ошибкой
                         ServerMessage message = ServerMessage.builder().message(ResultMessage.CONNECTION_ABORTED).build();
