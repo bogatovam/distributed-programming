@@ -7,7 +7,7 @@ public class Constants {
     public static final Integer FIELD_SIZE_X = 30;
     public static final Integer FIELD_SIZE_Y = 30;
     public static final Integer MOVES = 5;
-    public static final Integer SHIFT = 3;
+    public static final Integer SCALE = 3;
 
     public static final String CLIENT_CONNECTION_ERROR = "Client connection error";
     public static final String SERVER_CONNECTION_ERROR = "Server connection error";

@@ -1,12 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="329.0" prefWidth="541.0" style="-fx-background-color: #293E6F;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
-fx:controller="unn.game.bugs.controllers.GameController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="838.0" style="-fx-background-color: #293E6F;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="unn.game.bugs.controllers.GameController">
+    <children>
+        <Canvas id="field" fx:id="gameField" height="538.0" layoutX="-2.0" width="634.0" />
+        <AnchorPane layoutX="632.0" prefHeight="538.0" prefWidth="206.0" style="-fx-background-color: #fafafa;">
+            <children>
+                <Label layoutX="65.0" layoutY="42.0" text="Игроки" textFill="#293e6f">
+                    <font>
+                        <Font name="Segoe UI Black" size="20.0" />
+                    </font>
+                </Label>
+                <Separator layoutX="3.0" layoutY="71.0" prefWidth="200.0" />
+                <Label fx:id="players" layoutX="75.0" layoutY="88.0" textFill="#293e6f" visible="false">
+                    <font>
+                        <Font name="Segoe UI Black" size="18.0" />
+                    </font>
+                </Label>
+                <Separator layoutY="194.0" prefHeight="3.0" prefWidth="206.0" style="-fx-background-color: #A60000;" />
+                <Label fx:id="loserPlayers" layoutX="48.0" layoutY="197.0" text="* проигравшие" textFill="#2b4070c0">
+                    <font>
+                        <Font name="Segoe UI" size="12.0" />
+                    </font>
+                </Label>
+                <Button fx:id="skipButton" layoutX="34.0" layoutY="427.0" mnemonicParsing="false" style="-fx-background-color: #293e6f; -fx-background-radius: 10;" text="Пропустить ход" textFill="#fafafa">
+                    <font>
+                        <Font name="Segoe UI" size="16.0" />
+                    </font>
+                </Button>
+                <Button fx:id="stopGameButton" layoutX="38.0" layoutY="480.0" mnemonicParsing="false" style="-fx-background-color: #293e6f; -fx-background-radius: 10;" text="Выход из игры" textFill="#fafafa">
+                    <font>
+                        <Font name="Segoe UI" size="16.0" />
+                    </font>
+                </Button>
+            </children>
+        </AnchorPane>
+    </children>
 </AnchorPane>

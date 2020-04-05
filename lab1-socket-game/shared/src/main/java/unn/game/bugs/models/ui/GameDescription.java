@@ -1,12 +1,9 @@
 package unn.game.bugs.models.ui;
 
 import lombok.Data;
-import unn.game.bugs.models.ui.Bug;
-import unn.game.bugs.models.ui.FieldCell;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 import static unn.game.bugs.models.Constants.*;
@@ -22,17 +19,20 @@ public class GameDescription implements Serializable {
     }
 
     private void generateField(List<ClientDescription> clientDescriptionList) {
+        for (int i = 0; i < field.length; i++) {
+            for (int j = 0; j < field[i].length; j++) {
+                field[i][j] = new FieldCell();
+            }
+        }
+
         Random random = new Random();
         int step_x = FIELD_SIZE_X / clientDescriptionList.size();
         int step_y = FIELD_SIZE_Y / clientDescriptionList.size();
         for (int i = 0; i < clientDescriptionList.size(); ++i) {
-
             int x = (step_x * i) + random.nextInt(step_x);
             int y = (step_y * i) + random.nextInt(step_y);
-            field[step_x][step_y].setCell(
-                    Optional.of(
-                            Bug.builder().setBy(clientDescriptionList.get(i).getId()).build()
-                    )
+            field[x][y].setBug(
+                    Bug.builder().setBy(clientDescriptionList.get(i).getId()).build()
             );
         }
     }
