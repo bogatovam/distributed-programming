@@ -1,11 +1,9 @@
 package unn.game.bugs.services.api;
 
-
 import unn.game.bugs.models.Point;
 import unn.game.bugs.models.ui.ClientDescription;
 import unn.game.bugs.models.ui.GameDescription;
 
-import java.util.List;
 import java.util.Map;
 
 public interface RenderingService {
