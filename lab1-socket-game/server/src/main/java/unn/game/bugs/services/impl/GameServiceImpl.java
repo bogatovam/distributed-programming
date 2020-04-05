@@ -11,18 +11,15 @@ import unn.game.bugs.models.ui.GameDescription;
 import unn.game.bugs.services.api.ConnectionService;
 import unn.game.bugs.services.api.GameService;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static unn.game.bugs.models.Constants.UNPROCESSABLE_MESSAGE_FROM_CLIENT;
-
 @Slf4j
 public class GameServiceImpl implements GameService {
     // здесь нет базы, это взамен нее
-    private ConcurrentHashMap<String, Game> activeGames = new ConcurrentHashMap<>();
+    private Map<String, Game> activeGames = new ConcurrentHashMap<>();
     private final ConnectionService connectionService = ConnectionServiceImpl.getInstance();
 
     private static GameServiceImpl instance = new GameServiceImpl();
@@ -38,14 +35,7 @@ public class GameServiceImpl implements GameService {
             String uuid = UUID.randomUUID().toString();
 
             Map<String, ClientDescription> clientsDescription = clientList.stream()
-                    .map(client -> {
-                        try {
-                            return client.receiveMessage();
-                        } catch (IOException | ClassNotFoundException e) {
-                            log.error(UNPROCESSABLE_MESSAGE_FROM_CLIENT);
-                            return ClientMessage.builder().build();
-                        }
-                    })
+                    .map(client -> (ClientMessage) client.receiveMessage())
                     .map(ClientMessage::getClientDescription)
                     .collect(Collectors.toMap(ClientDescription::getId, Function.identity()));
 
@@ -66,51 +56,44 @@ public class GameServiceImpl implements GameService {
             connectionService.broadcast(clientList, initMessage);
 
             newGame.getPlayers()
-                    .forEach(player -> getGameProcessThread(newGame.getGameDescription().getGameId(), player)
-                            .start()
-                    );
+                    .forEach(player ->
+                            getGameProcessThread(newGame.getGameDescription().getGameId(), player).start());
         });
     }
 
     public Thread getGameProcessThread(String gameId, Client client) {
         return new Thread(() -> {
-            try {
-                while (true) {
-                    if (!client.getClientSocket().isClosed()) {
-                        // ход
-                        ClientMessage message = client.receiveMessage();
-                        log.debug("Receive message {} fom client {}", message, client.getDescription().getName());
-
-                    } else {
-                        // дисконект, закрываем всех с ошибкой
-                        ServerMessage message = ServerMessage.builder().message(ResultMessage.CONNECTION_ABORTED).build();
-                        Optional.ofNullable(activeGames.get(gameId))
-                                .ifPresent(game -> connectionService.broadcast(game.getPlayers(), message));
-                        this.finishGame(gameId);
-                    }
-
+            while (true) {
+                if (!client.getClientSocket().isClosed()) {
+                    // ход
+                    ClientMessage message = client.receiveMessage();
+                    log.debug("Receive message {} from client {}", message, client.getDescription().getName());
+                    // обработка хода должна быть синхронизированной
+                    // словарь activeGames хранит актуальное(!) состояние каждой игры
+                    // Любое изменение должно фиксироваться в gameDescription соотвествтующего объекта
+                    this.makeMove(activeGames.get(gameId), message);
+                } else {
+                    // дисконект, закрываем всех с ошибкой
+                    ServerMessage message = ServerMessage.builder().message(ResultMessage.CONNECTION_ABORTED).build();
+                    connectionService.broadcast(activeGames.get(gameId).getPlayers(), message);
+                    this.finishGame(activeGames.get(gameId));
                 }
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
             }
         });
     }
 
-    public void finishGame(String gameId) {
-        Optional.ofNullable(activeGames.get(gameId))
-                .ifPresent((game -> {
-                    game.getPlayers().forEach(p -> {
-                        try {
-                            p.stopConnection();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }));
+    public void finishGame(Game game) {
+        game.getPlayers().stream()
+                .filter(p -> !p.getClientSocket().isClosed())
+                .forEach(Client::stopConnection);
+    }
+
+    public synchronized void makeMove(Game game, ClientMessage clientMessage) {
+        // Также делает броадкаст, потому что он тоже должен быть выполнен синхрнизированно
+
     }
 
     public static GameServiceImpl getInstance() {
         return instance;
     }
-
 }

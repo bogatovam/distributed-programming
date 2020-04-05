@@ -5,8 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import unn.game.bugs.models.ui.ClientDescription;
 
 import java.io.*;
-import java.net.ConnectException;
 import java.net.Socket;
+
+import static unn.game.bugs.models.Constants.*;
 
 @Data
 @Slf4j
@@ -18,33 +19,41 @@ public class Client {
 
     private ClientDescription description;
 
-    public Client(Socket clientSocket) throws IOException {
+    public Client(Socket clientSocket) {
         this.clientSocket = clientSocket;
 
-        this.out = new ObjectOutputStream(clientSocket.getOutputStream());
-        this.in = new ObjectInputStream(clientSocket.getInputStream());
+        try {
+            this.out = new ObjectOutputStream(clientSocket.getOutputStream());
+            this.in = new ObjectInputStream(clientSocket.getInputStream());
+        } catch (IOException e) {
+           log.error(OBJECT_STREAM_ERROR + ": " +  e.getMessage());
+        }
     }
 
-    public <T> void sendMessage(T objectMessage) throws ConnectException, IOException {
-        if (out == null) {
-            throw new ConnectException("There is no connection: socket is null");
+    public <T> void sendMessage(T objectMessage) {
+        try {
+            out.writeObject(objectMessage);
+        } catch (IOException e) {
+            log.error(UNPROCESSABLE_SENDING_MESSAGE + ": " +  e.getMessage());
         }
-        out.writeObject(objectMessage);
     }
 
-    public <T> T receiveMessage() throws ConnectException, IOException, ClassNotFoundException {
-        if (in == null) {
-            throw new ConnectException("There is no connection: socket is null");
+    public <T> T receiveMessage() {
+        try {
+            return (T) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            log.error(UNPROCESSABLE_RECEIVING_MESSAGE + ": " +  e.getMessage());
         }
-        return (T) in.readObject();
+        return null;
     }
 
-    public void stopConnection() throws IOException {
-        if (in == null || out == null || clientSocket == null) {
-            throw new ConnectException("There is no connection: socket is null");
+    public void stopConnection() {
+        try {
+            in.close();
+            out.close();
+            clientSocket.close();
+        } catch (IOException e) {
+            log.error(CLOSE_CONNECTION_ERROR + ": " +  e.getMessage());
         }
-        in.close();
-        out.close();
-        clientSocket.close();
     }
 }

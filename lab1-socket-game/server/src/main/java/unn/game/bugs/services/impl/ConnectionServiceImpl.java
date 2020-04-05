@@ -38,13 +38,7 @@ public class ConnectionServiceImpl implements ConnectionService {
     public <T> void broadcast(List<Client> clients, T message) {
         log.debug("Broadcast message {} among clients {}", message, clients);
         clients.forEach(client -> {
-            try {
-                client.sendMessage(message);
-            } catch (ConnectException e) {
-                log.error(CLIENT_CONNECTION_ERROR + ": " + e.getMessage());
-            } catch (IOException e) {
-                log.error(UNPROCESSABLE_MESSAGE_TO_CLIENT + ": " + e.getMessage());
-            }
+            client.sendMessage(message);
         });
     }
 

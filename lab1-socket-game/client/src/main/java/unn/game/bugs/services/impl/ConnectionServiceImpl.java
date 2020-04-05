@@ -28,17 +28,14 @@ public class ConnectionServiceImpl implements ConnectionService {
             client = new Client(new Socket("127.0.0.1", SERVER_PORT));
             this.processAfterConnection(client, clientName);
             return client;
-        } catch (ConnectException e) {
-            log.error(SERVER_CONNECTION_ERROR + ": " + e.getMessage());
-            renderingService.buildErrorScene(SERVER_CONNECTION_ERROR);
         } catch (IOException e) {
-            log.error(UNPROCESSABLE_MESSAGE_FROM_SERVER + ": " + e.getMessage());
-            renderingService.buildErrorScene(UNPROCESSABLE_MESSAGE_FROM_SERVER);
+            log.error(CREATE_CONNECTION_ERROR + ": " + e.getMessage());
+            renderingService.buildErrorScene(CREATE_CONNECTION_ERROR);
         }
         return client;
     }
 
-    protected void processAfterConnection(Client client, String clientName) throws ConnectException, IOException {
+    protected void processAfterConnection(Client client, String clientName) {
         ClientDescription description = new ClientDescription(clientName);
         client.setDescription(description);
         client.sendMessage(ClientMessage.builder().clientDescription(description).build());

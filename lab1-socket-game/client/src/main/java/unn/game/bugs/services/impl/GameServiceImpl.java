@@ -5,13 +5,8 @@ import unn.game.bugs.models.Client;
 import unn.game.bugs.models.message.ClientMessage;
 import unn.game.bugs.models.message.ResultMessage;
 import unn.game.bugs.models.message.ServerMessage;
-import unn.game.bugs.models.ui.GameDescription;
 import unn.game.bugs.services.api.GameService;
 import unn.game.bugs.services.api.RenderingService;
-
-import java.io.IOException;
-
-import static unn.game.bugs.models.Constants.UNPROCESSABLE_MESSAGE_FROM_SERVER;
 
 @Slf4j
 public class GameServiceImpl implements GameService {
@@ -26,18 +21,14 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void startGame(Client client) {
-        try {
-            this.client = client;
+        this.client = client;
 
-            ServerMessage serverMessage = client.receiveMessage();
+        ServerMessage serverMessage = client.receiveMessage();
 
-            this.renderingService
-                    .buildGameScene(serverMessage.getGameDescription(), serverMessage.getAllClients(), client.getDescription());
+        this.renderingService
+                .buildGameScene(serverMessage.getGameDescription(), serverMessage.getAllClients(), client.getDescription());
 
-            this.getGameTread().start();
-        } catch (IOException | ClassNotFoundException e) {
-            log.debug(UNPROCESSABLE_MESSAGE_FROM_SERVER + ": " + e.getMessage());
-        }
+        this.getGameTread().start();
     }
 
     @Override
@@ -47,11 +38,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void stopGame() {
-        try {
-            this.client.stopConnection();
-        } catch (IOException e) {
-            log.error("Can't stop connection");
-        }
+        this.client.stopConnection();
     }
 
     @Override
@@ -60,26 +47,18 @@ public class GameServiceImpl implements GameService {
                 .clientDescription(client.getDescription())
                 .point(renderingService.getFieldPointByCanvasCoords(x, y))
                 .build();
-        try {
-            client.sendMessage(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        client.sendMessage(message);
     }
 
     private Thread getGameTread() {
         return new Thread(() -> {
-            try {
-                while (true) {
-                    ServerMessage message = client.receiveMessage();
-                    log.info("Receive message: {}", message);
+            while (true) {
+                ServerMessage message = client.receiveMessage();
+                log.info("Receive message: {}", message);
 
-                    if(message.getMessage().equals(ResultMessage.ACTION_APPLIED)) {
-                        this.renderingService.drawGameField(message.getGameDescription(), message.getAllClients());
-                    }
+                if (message.getMessage().equals(ResultMessage.ACTION_APPLIED)) {
+                    this.renderingService.drawGameField(message.getGameDescription(), message.getAllClients());
                 }
-            } catch (IOException | ClassNotFoundException e) {
-                log.debug(UNPROCESSABLE_MESSAGE_FROM_SERVER + ": " + e.getMessage());
             }
         });
     }

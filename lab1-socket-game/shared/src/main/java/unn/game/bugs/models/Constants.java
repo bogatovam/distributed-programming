@@ -9,10 +9,9 @@ public class Constants {
     public static final Integer MOVES = 5;
     public static final Integer SCALE = 3;
 
-    public static final String CLIENT_CONNECTION_ERROR = "Client connection error";
-    public static final String SERVER_CONNECTION_ERROR = "Server connection error";
-    public static final String UNPROCESSABLE_MESSAGE_FROM_CLIENT = "Unprocessable message from client";
-    public static final String UNPROCESSABLE_MESSAGE_TO_CLIENT = "Can't serialize message to send to client";
-    public static final String UNPROCESSABLE_MESSAGE_FROM_SERVER = "Unprocessable message from server";
-    public static final String UNPROCESSABLE_MESSAGE_TO_SERVER = "Can't serialize message to send to server";
+    public static final String OBJECT_STREAM_ERROR = "Can't open object streams";
+    public static final String UNPROCESSABLE_SENDING_MESSAGE = "Can't serialize sending message";
+    public static final String UNPROCESSABLE_RECEIVING_MESSAGE = "Can't serialize receiving message";
+    public static final String CLOSE_CONNECTION_ERROR = "Can't close connection";
+    public static final String CREATE_CONNECTION_ERROR = "Can't create connection";
 }
