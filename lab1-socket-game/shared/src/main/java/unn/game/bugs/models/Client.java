@@ -17,7 +17,7 @@ public class Client {
     private ObjectOutputStream out;
     private ObjectInputStream in;
 
-    private ClientDescription description;
+    private ClientDescription clientDescription;
 
     public Client(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -32,6 +32,7 @@ public class Client {
 
     public <T> void sendMessage(T objectMessage) {
         try {
+            out.reset();
             out.writeObject(objectMessage);
         } catch (IOException e) {
             log.error(UNPROCESSABLE_SENDING_MESSAGE + ": " +  e.getMessage());

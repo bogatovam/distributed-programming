@@ -1,5 +1,6 @@
 package unn.game.bugs.services.api;
 
+import javafx.scene.paint.Color;
 import unn.game.bugs.models.Point;
 import unn.game.bugs.models.ui.ClientDescription;
 import unn.game.bugs.models.ui.GameDescription;
@@ -14,4 +15,6 @@ public interface RenderingService {
     Point getFieldPointByCanvasCoords(double x, double y);
 
     void drawGameField(GameDescription gameDescription, Map<String, ClientDescription> allClients);
+
+    void drawBugCell(double x, double y, double w, double h, Color color);
 }

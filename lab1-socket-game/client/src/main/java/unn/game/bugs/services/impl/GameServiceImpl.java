@@ -26,7 +26,7 @@ public class GameServiceImpl implements GameService {
         ServerMessage serverMessage = client.receiveMessage();
 
         this.renderingService
-                .buildGameScene(serverMessage.getGameDescription(), serverMessage.getAllClients(), client.getDescription());
+                .buildGameScene(serverMessage.getGameDescription(), serverMessage.getAllClients(), client.getClientDescription());
 
         this.getGameTread().start();
     }
@@ -44,7 +44,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public void makeMove(double x, double y) {
         ClientMessage message = ClientMessage.builder()
-                .clientDescription(client.getDescription())
+                .clientDescription(client.getClientDescription())
                 .point(renderingService.getFieldPointByCanvasCoords(x, y))
                 .build();
         client.sendMessage(message);

@@ -8,7 +8,6 @@ import unn.game.bugs.services.api.ConnectionService;
 import unn.game.bugs.services.api.RenderingService;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.Socket;
 
 import static unn.game.bugs.models.Constants.*;
@@ -37,7 +36,7 @@ public class ConnectionServiceImpl implements ConnectionService {
 
     protected void processAfterConnection(Client client, String clientName) {
         ClientDescription description = new ClientDescription(clientName);
-        client.setDescription(description);
+        client.setClientDescription(description);
         client.sendMessage(ClientMessage.builder().clientDescription(description).build());
     }
 

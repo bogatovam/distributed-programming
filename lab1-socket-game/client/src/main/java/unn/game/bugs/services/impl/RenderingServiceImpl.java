@@ -45,6 +45,11 @@ public class RenderingServiceImpl implements RenderingService {
             this.gameController = loader.getController();
             this.context = this.gameController.gameField.getGraphicsContext2D();
 
+            this.scale_x = this.gameController.gameField.widthProperty().divide(gameDescription.getField().length).doubleValue();
+            this.scale_y = this.gameController.gameField.heightProperty().divide(gameDescription.getField()[0].length).doubleValue();
+
+            log.debug("Scales [x,y]: [{},{}]", this.scale_x, this.scale_y);
+
             this.drawGameField(gameDescription, allClients);
             this.drawActivePlayers(new ArrayList<>(allClients.values()));
 
@@ -82,17 +87,12 @@ public class RenderingServiceImpl implements RenderingService {
 
     @Override
     public void drawGameField(GameDescription gameDescription, Map<String, ClientDescription> allClients) {
-
-        this.scale_x = this.gameController.gameField.widthProperty().divide(gameDescription.getField().length).doubleValue();
-        this.scale_y = this.gameController.gameField.heightProperty().divide(gameDescription.getField()[0].length).doubleValue();
-
-        log.debug("Scales [x,y]: [{},{}]", this.scale_x, this.scale_y);
-
         for (int i = 0; i < gameDescription.getField().length; i++) {
             for (int j = 0; j < gameDescription.getField()[i].length; j++) {
                 context.setFill(Color.LIGHTGRAY);
                 context.fillRect(i * scale_x, j * scale_y, scale_x, scale_y);
                 if (!gameDescription.getField()[i][j].isEmpty()) {
+                    log.debug("{}", gameDescription.getField()[i][j]);
                     ClientDescription clientDescription = allClients.get(gameDescription.getField()[i][j].getBug().getSetBy());
                     this.drawBugCell(i * scale_x + 1, j * scale_y + 1, scale_x - 10, scale_y - 10,
                             Color.color(
@@ -113,7 +113,8 @@ public class RenderingServiceImpl implements RenderingService {
         this.drawBugCell(x, y, w - 10, h - 10, bugColor);
     }
 
-    private void drawBugCell(double x, double y, double w, double h, Color color) {
+    @Override
+    public void drawBugCell(double x, double y, double w, double h, Color color) {
         context.setFill(color);
         context.fillOval(x, y, w, h);
     }

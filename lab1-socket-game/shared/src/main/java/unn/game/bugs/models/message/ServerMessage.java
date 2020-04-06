@@ -6,7 +6,6 @@ import unn.game.bugs.models.ui.ClientDescription;
 import unn.game.bugs.models.ui.GameDescription;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 
 @Data
