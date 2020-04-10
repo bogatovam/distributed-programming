@@ -14,4 +14,5 @@ public class ServerMessage implements Serializable {
     private ResultMessage message;
     private Map<String, ClientDescription> allClients;
     private GameDescription gameDescription;
+
 }

@@ -56,7 +56,7 @@ public class GameServiceImpl implements GameService {
                 ServerMessage message = client.receiveMessage();
                 log.info("Receive message: {}", message);
 
-                if (message.getMessage().equals(ResultMessage.ACTION_APPLIED)) {
+                    if (message.getMessage().equals(ResultMessage.ACTION_APPLIED)) {
                     this.renderingService.drawGameField(message.getGameDescription(), message.getAllClients());
                 }
             }
