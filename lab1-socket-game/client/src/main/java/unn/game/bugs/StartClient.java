@@ -17,7 +17,6 @@ public class StartClient extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/unn/game/bugs/entrypoint.fxml"));
         Scene scene = new Scene(root);
-        // scene.getStylesheets().add(getClass().getResource("/unn/game/bugs/style.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }

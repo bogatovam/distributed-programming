@@ -1,5 +1,6 @@
 package unn.game.bugs.services.impl;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import unn.game.bugs.controllers.ErrorsController;
 import unn.game.bugs.controllers.GameController;
 import unn.game.bugs.models.Point;
+import unn.game.bugs.models.message.ResultMessage;
 import unn.game.bugs.models.ui.ClientDescription;
 import unn.game.bugs.models.ui.GameDescription;
 import unn.game.bugs.services.api.RenderingService;
@@ -36,7 +38,8 @@ public class RenderingServiceImpl implements RenderingService {
     public void buildGameScene(GameDescription gameDescription, Map<String, ClientDescription> allClients,
             ClientDescription clientDescription) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/unn/game/bugs/game.fxml"));
+            final FXMLLoader loader = new FXMLLoader(this.getClass()
+                                                         .getResource("/unn/game/bugs/game.fxml"));
             Stage stage = new Stage();
             stage.setScene(new Scene(loader.load()));
 
@@ -54,6 +57,7 @@ public class RenderingServiceImpl implements RenderingService {
 
             this.drawGameField(gameDescription, allClients);
             this.drawActivePlayers(new ArrayList<>(allClients.values()));
+            this.drawCurrentPlayer(clientDescription);
 
             stage.show();
         } catch (IOException e) {
@@ -92,31 +96,44 @@ public class RenderingServiceImpl implements RenderingService {
                 this.drawEmptyCell(i * scale_x + 1, j * scale_y + 1, scale_x - 2, scale_y - 2);
 
                 if (!gameDescription.getField()[i][j].isEmpty()) {
-                    if (gameDescription.getField()[i][j].getBug().isAlive()) {
+                    if (gameDescription.getField()[i][j].getBug()
+                                                        .isAlive()) {
                         ClientDescription clientDescription =
-                                allClients.get(gameDescription.getField()[i][j].getBug().getSetBy());
+                                allClients.get(gameDescription.getField()[i][j].getBug()
+                                                                               .getSetBy());
                         this.drawBugCell(i * scale_x + 5,
                                          j * scale_y + 5,
                                          scale_x - 10,
                                          scale_y - 10,
-                                         Color.color(clientDescription.getColor().getR(),
-                                                     clientDescription.getColor().getG(),
-                                                     clientDescription.getColor().getB()));
+                                         Color.color(clientDescription.getColor()
+                                                                      .getR(),
+                                                     clientDescription.getColor()
+                                                                      .getG(),
+                                                     clientDescription.getColor()
+                                                                      .getB()));
                     } else {
                         ClientDescription diedClientDescription =
-                                allClients.get(gameDescription.getField()[i][j].getBug().getSetBy());
+                                allClients.get(gameDescription.getField()[i][j].getBug()
+                                                                               .getSetBy());
                         ClientDescription clientDescription =
-                                allClients.get(gameDescription.getField()[i][j].getBug().getKillBy());
+                                allClients.get(gameDescription.getField()[i][j].getBug()
+                                                                               .getKillBy());
                         this.drawDiedBugCell(i * scale_x + 1,
                                              j * scale_y + 1,
                                              scale_x,
                                              scale_y,
-                                             Color.color(diedClientDescription.getColor().getR(),
-                                                         diedClientDescription.getColor().getG(),
-                                                         diedClientDescription.getColor().getB()),
-                                             Color.color(clientDescription.getColor().getR(),
-                                                         clientDescription.getColor().getG(),
-                                                         clientDescription.getColor().getB()));
+                                             Color.color(diedClientDescription.getColor()
+                                                                              .getR(),
+                                                         diedClientDescription.getColor()
+                                                                              .getG(),
+                                                         diedClientDescription.getColor()
+                                                                              .getB()),
+                                             Color.color(clientDescription.getColor()
+                                                                          .getR(),
+                                                         clientDescription.getColor()
+                                                                          .getG(),
+                                                         clientDescription.getColor()
+                                                                          .getB()));
                     }
 
                 }
@@ -148,13 +165,56 @@ public class RenderingServiceImpl implements RenderingService {
         gameController.players.setVisible(true);
     }
 
-    private void drawLoserPlayers(List<ClientDescription> players) {
-        gameController.players.setText(players.stream()
-                                              .map(ClientDescription::getName)
-                                              .collect(Collectors.joining("\n")));
-        gameController.players.setVisible(true);
+    private void drawCurrentPlayer(ClientDescription current) {
+        gameController.currentPlayer.setTextFill(Color.color(current.getColor()
+                                                                    .getR(),
+                                                             current.getColor()
+                                                                    .getG(),
+                                                             current.getColor()
+                                                                    .getB()));
     }
 
+    @Override
+    public void drawActionMessage(ResultMessage message) {
+        Platform.runLater(new Thread(() -> {
+            switch (message) {
+                case ACTION_APPLIED: {
+                    gameController.actionMessage.setText("Ход сделан");
+                    break;
+                }
+                case ACTION_PROHIBITED: {
+                    gameController.actionMessage.setText("Ход сделать нельзя");
+                    break;
+                }
+                case WIN: {
+                    gameController.actionMessage.setText("ВЫ ВЫИГРАЛИ");
+                    break;
+                }
+                case LOSE: {
+                    gameController.actionMessage.setText("ВЫ ПРОИГРАЛИ");
+                    break;
+                }
+            }
+        }));
+
+    }
+
+    @Override
+    public void drawMoveMessage(final String clientId, GameDescription gameDescription) {
+        Platform.runLater(new Thread(() -> {
+            if (gameDescription.getCurrentPlayerId()
+                               .equals(clientId)) {
+                gameController.moveMessage.setTextFill(Color.GREEN);
+                gameController.moveMessage.setText("Осталось ходов: " + gameDescription.getRemainingMoves());
+            } else {
+                gameController.moveMessage.setTextFill(Color.RED);
+                gameController.moveMessage.setText("Сейчас не ваш ход :(");
+            }
+
+            gameController.moveMessage.setVisible(true);
+        }));
+
+    }
 
     public static RenderingServiceImpl getInstance() {
         return instance;

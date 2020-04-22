@@ -23,20 +23,26 @@
                         <Font name="Segoe UI Black" size="18.0" />
                     </font>
                 </Label>
-                <Separator layoutY="194.0" prefHeight="3.0" prefWidth="206.0" style="-fx-background-color: #A60000;" />
-                <Label fx:id="loserPlayers" layoutX="48.0" layoutY="197.0" text="* проигравшие" textFill="#2b4070c0">
+                <Label fx:id="currentPlayer" layoutX="25.0" layoutY="200.0" textFill="#293e6f" text="ЭТО ВАШ ЦВЕТ">
                     <font>
-                        <Font name="Segoe UI" size="12.0" />
+                        <Font name="Segoe UI Black" size="18.0" />
                     </font>
                 </Label>
-                <Button fx:id="skipButton" layoutX="34.0" layoutY="427.0" mnemonicParsing="false" style="-fx-background-color: #293e6f; -fx-background-radius: 10;" text="Пропустить ход" textFill="#fafafa">
+                <Separator layoutY="194.0" prefHeight="3.0" prefWidth="206.0" style="-fx-background-color: #A60000;" />
+
+                <Label fx:id="actionMessage" layoutX="5.0" layoutY="250.0" textFill="#2b4070c0">
                     <font>
-                        <Font name="Segoe UI" size="16.0" />
+                        <Font name="Segoe UI Black" size="18.0" />
                     </font>
-                </Button>
+                </Label>
+                <Label fx:id="moveMessage" layoutX="5.0" layoutY="300.0" textFill="#2b4070c0">
+                    <font>
+                        <Font name="Segoe UI Black" size="18.0" />
+                    </font>
+                </Label>
                 <Button fx:id="stopGameButton" layoutX="38.0" layoutY="480.0" mnemonicParsing="false" style="-fx-background-color: #293e6f; -fx-background-radius: 10;" text="Выход из игры" textFill="#fafafa">
                     <font>
-                        <Font name="Segoe UI" size="16.0" />
+                        <Font name="Segoe UI Black" size="16.0" />
                     </font>
                 </Button>
             </children>

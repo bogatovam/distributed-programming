@@ -10,4 +10,7 @@ import java.io.Serializable;
 public class GameDescription implements Serializable {
     private String gameId;
     private FieldCell[][] field;
+    private String currentPlayerId;
+    private int currentPlayerNumber = 0;
+    private int remainingMoves;
 }

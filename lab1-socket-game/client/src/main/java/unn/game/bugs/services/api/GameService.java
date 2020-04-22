@@ -7,7 +7,5 @@ public interface GameService {
 
     void stopGame();
 
-    void skipMove();
-
     void makeMove(double x, double y);
 }

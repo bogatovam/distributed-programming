@@ -22,7 +22,6 @@ public class GameServiceImpl implements GameService {
     @Override
     public void startGame(Client client) {
         this.client = client;
-
         ServerMessage serverMessage = client.receiveMessage();
 
         this.renderingService.buildGameScene(serverMessage.getGameDescription(),
@@ -31,11 +30,6 @@ public class GameServiceImpl implements GameService {
 
         this.getGameTread()
             .start();
-    }
-
-    @Override
-    public void skipMove() {
-
     }
 
     @Override
@@ -57,12 +51,17 @@ public class GameServiceImpl implements GameService {
             while (true) {
                 ServerMessage message = client.receiveMessage();
                 log.info("Receive message: {}", message);
+                if (message != null) {
+                    renderingService.drawActionMessage(message.getMessage());
+                    renderingService.drawMoveMessage(client.getClientDescription()
+                                                           .getId(), message.getGameDescription());
 
-                if (message != null && message.getMessage() != null && message.getMessage()
-                                                                              .equals(ResultMessage.ACTION_APPLIED)) {
-                    this.renderingService.drawGameField(message.getGameDescription(),
-                                                        message.getAllClients());
-                }
+                    if (message.getMessage() != null && message.getMessage()
+                                                               .equals(ResultMessage.ACTION_APPLIED)) {
+                        this.renderingService.drawGameField(message.getGameDescription(),
+                                                            message.getAllClients());
+                    }
+                } else break;
             }
         });
     }

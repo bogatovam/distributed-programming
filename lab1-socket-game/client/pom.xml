@@ -19,4 +19,18 @@
             <version>1.0</version>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>com.zenjava</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>unn.game.bugs.StartClient</mainClass>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
 </project>
