@@ -6,7 +6,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import unn.game.bugs.services.api.GameService;
 import unn.game.bugs.services.impl.GameServiceImpl;
 

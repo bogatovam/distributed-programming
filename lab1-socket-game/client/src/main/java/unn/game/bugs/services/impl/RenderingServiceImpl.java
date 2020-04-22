@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class RenderingServiceImpl implements RenderingService {
+
     GameController gameController;
     GraphicsContext context;
     private static RenderingServiceImpl instance = new RenderingServiceImpl();
@@ -32,21 +33,22 @@ public class RenderingServiceImpl implements RenderingService {
     }
 
     @Override
-    public void buildGameScene(GameDescription gameDescription, Map<String, ClientDescription> allClients, ClientDescription clientDescription) {
+    public void buildGameScene(GameDescription gameDescription, Map<String, ClientDescription> allClients,
+            ClientDescription clientDescription) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(
-                            "/unn/game/bugs/game.fxml"
-                    )
-            );
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/unn/game/bugs/game.fxml"));
             Stage stage = new Stage();
             stage.setScene(new Scene(loader.load()));
 
             this.gameController = loader.getController();
             this.context = this.gameController.gameField.getGraphicsContext2D();
 
-            this.scale_x = this.gameController.gameField.widthProperty().divide(gameDescription.getField().length).doubleValue();
-            this.scale_y = this.gameController.gameField.heightProperty().divide(gameDescription.getField()[0].length).doubleValue();
+            this.scale_x = this.gameController.gameField.widthProperty()
+                                                        .divide(gameDescription.getField().length)
+                                                        .doubleValue();
+            this.scale_y = this.gameController.gameField.heightProperty()
+                                                        .divide(gameDescription.getField()[0].length)
+                                                        .doubleValue();
 
             log.debug("Scales [x,y]: [{},{}]", this.scale_x, this.scale_y);
 
@@ -62,11 +64,7 @@ public class RenderingServiceImpl implements RenderingService {
     @Override
     public void buildErrorScene(final String errorMessage) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(
-                            "/unn/game/bugs/error-page.fxml"
-                    )
-            );
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/unn/game/bugs/error-page.fxml"));
 
             Stage stage = new Stage();
             stage.setTitle("ERROR");
@@ -91,17 +89,36 @@ public class RenderingServiceImpl implements RenderingService {
             for (int j = 0; j < gameDescription.getField()[i].length; j++) {
                 context.setFill(Color.LIGHTGRAY);
                 context.fillRect(i * scale_x, j * scale_y, scale_x, scale_y);
+                this.drawEmptyCell(i * scale_x + 1, j * scale_y + 1, scale_x - 2, scale_y - 2);
+
                 if (!gameDescription.getField()[i][j].isEmpty()) {
-                    log.debug("{}", gameDescription.getField()[i][j]);
-                    ClientDescription clientDescription = allClients.get(gameDescription.getField()[i][j].getBug().getSetBy());
-                    this.drawBugCell(i * scale_x + 1, j * scale_y + 1, scale_x - 10, scale_y - 10,
-                            Color.color(
-                                    clientDescription.getColor().getR(),
-                                    clientDescription.getColor().getG(),
-                                    clientDescription.getColor().getB())
-                    );
-                } else {
-                    this.drawEmptyCell(i * scale_x + 1, j * scale_y + 1, scale_x - 2, scale_y - 2);
+                    if (gameDescription.getField()[i][j].getBug().isAlive()) {
+                        ClientDescription clientDescription =
+                                allClients.get(gameDescription.getField()[i][j].getBug().getSetBy());
+                        this.drawBugCell(i * scale_x + 5,
+                                         j * scale_y + 5,
+                                         scale_x - 10,
+                                         scale_y - 10,
+                                         Color.color(clientDescription.getColor().getR(),
+                                                     clientDescription.getColor().getG(),
+                                                     clientDescription.getColor().getB()));
+                    } else {
+                        ClientDescription diedClientDescription =
+                                allClients.get(gameDescription.getField()[i][j].getBug().getSetBy());
+                        ClientDescription clientDescription =
+                                allClients.get(gameDescription.getField()[i][j].getBug().getKillBy());
+                        this.drawDiedBugCell(i * scale_x + 1,
+                                             j * scale_y + 1,
+                                             scale_x,
+                                             scale_y,
+                                             Color.color(diedClientDescription.getColor().getR(),
+                                                         diedClientDescription.getColor().getG(),
+                                                         diedClientDescription.getColor().getB()),
+                                             Color.color(clientDescription.getColor().getR(),
+                                                         clientDescription.getColor().getG(),
+                                                         clientDescription.getColor().getB()));
+                    }
+
                 }
             }
         }
@@ -110,7 +127,7 @@ public class RenderingServiceImpl implements RenderingService {
     private void drawDiedBugCell(double x, double y, double w, double h, Color bugColor, Color killerColor) {
         context.setFill(killerColor);
         context.fillRect(x, y, w, h);
-        this.drawBugCell(x, y, w - 10, h - 10, bugColor);
+        this.drawBugCell(x + 5, y + 5, w - 10, h - 10, bugColor);
     }
 
     @Override
@@ -126,17 +143,15 @@ public class RenderingServiceImpl implements RenderingService {
 
     private void drawActivePlayers(List<ClientDescription> players) {
         gameController.players.setText(players.stream()
-                .map(ClientDescription::getName)
-                .collect(Collectors.joining("\n"))
-        );
+                                              .map(ClientDescription::getName)
+                                              .collect(Collectors.joining("\n")));
         gameController.players.setVisible(true);
     }
 
     private void drawLoserPlayers(List<ClientDescription> players) {
         gameController.players.setText(players.stream()
-                .map(ClientDescription::getName)
-                .collect(Collectors.joining("\n"))
-        );
+                                              .map(ClientDescription::getName)
+                                              .collect(Collectors.joining("\n")));
         gameController.players.setVisible(true);
     }
 

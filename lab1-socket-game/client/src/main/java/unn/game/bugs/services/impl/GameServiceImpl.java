@@ -10,14 +10,14 @@ import unn.game.bugs.services.api.RenderingService;
 
 @Slf4j
 public class GameServiceImpl implements GameService {
+
     private final RenderingService renderingService = RenderingServiceImpl.getInstance();
 
     private static GameServiceImpl instance = new GameServiceImpl();
 
     private Client client;
 
-    private GameServiceImpl() {
-    }
+    private GameServiceImpl() {}
 
     @Override
     public void startGame(Client client) {
@@ -25,10 +25,12 @@ public class GameServiceImpl implements GameService {
 
         ServerMessage serverMessage = client.receiveMessage();
 
-        this.renderingService
-                .buildGameScene(serverMessage.getGameDescription(), serverMessage.getAllClients(), client.getClientDescription());
+        this.renderingService.buildGameScene(serverMessage.getGameDescription(),
+                                             serverMessage.getAllClients(),
+                                             client.getClientDescription());
 
-        this.getGameTread().start();
+        this.getGameTread()
+            .start();
     }
 
     @Override
@@ -44,9 +46,9 @@ public class GameServiceImpl implements GameService {
     @Override
     public void makeMove(double x, double y) {
         ClientMessage message = ClientMessage.builder()
-                .clientDescription(client.getClientDescription())
-                .point(renderingService.getFieldPointByCanvasCoords(x, y))
-                .build();
+                                             .clientDescription(client.getClientDescription())
+                                             .point(renderingService.getFieldPointByCanvasCoords(x, y))
+                                             .build();
         client.sendMessage(message);
     }
 
@@ -56,8 +58,10 @@ public class GameServiceImpl implements GameService {
                 ServerMessage message = client.receiveMessage();
                 log.info("Receive message: {}", message);
 
-                    if (message.getMessage().equals(ResultMessage.ACTION_APPLIED)) {
-                    this.renderingService.drawGameField(message.getGameDescription(), message.getAllClients());
+                if (message != null && message.getMessage() != null && message.getMessage()
+                                                                              .equals(ResultMessage.ACTION_APPLIED)) {
+                    this.renderingService.drawGameField(message.getGameDescription(),
+                                                        message.getAllClients());
                 }
             }
         });

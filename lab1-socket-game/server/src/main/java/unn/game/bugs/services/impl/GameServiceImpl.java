@@ -58,6 +58,7 @@ public class GameServiceImpl implements GameService {
                             .field(generateField(clientsDescription))
                             .build())
                     .players(clientListWithDescription)
+                    .allComponents(new LinkedHashMap<>())
                     .build();
 
             // save game in list with all active games
@@ -140,7 +141,7 @@ public class GameServiceImpl implements GameService {
             if (!aliveAround.isEmpty()) {
                 log.debug("Рядом есть мои живые, отлично. Можно сделать ход");
                 // сделать ход
-                connectionService.broadcast(game.getPlayers(), makeMoveAndGetMessage(game, point, gameId, componentsAround, aliveAround));
+                connectionService.broadcast(game.getPlayers(), makeMoveAndGetMessage(game, point, clientId, componentsAround, aliveAround));
             } else {
                 log.debug("Рядом живых нет :( Проверим, есть ли те, кого я убивал");
                 if (!allKilledByClientAround.isEmpty()) {
@@ -149,8 +150,8 @@ public class GameServiceImpl implements GameService {
                     // если есть есть хотя бы одна подклченная компонента рядом, то можем сделать ход
                     if (!connectedComponents.isEmpty()) {
                         // сделать ход
-                        log.debug("Ок, рядом подсключенная компонента. Делаем ход");
-                        connectionService.broadcast(game.getPlayers(), makeMoveAndGetMessage(game, point, gameId, componentsAround, aliveAround));
+                        log.debug("Ок, рядом подсключенная компонента: {}. Делаем ход", connectedComponents);
+                        connectionService.broadcast(game.getPlayers(), makeMoveAndGetMessage(game, point, clientId, componentsAround, aliveAround));
                     } else {
                         log.debug("Нет, рядом компонента неподключенная. Ход сделать нельзя");
                         // ход сделать нельзя
@@ -202,33 +203,36 @@ public class GameServiceImpl implements GameService {
                 affectedComponents.stream()
                         .map(component -> {
                             List<Point> activeBugs = component.getAliveBugsAround();
+                            log.debug("Точка {} будет удалена из {}", point, component);
                             activeBugs.remove(point);
                             component.setAliveBugsAround(activeBugs);
+                            log.debug("Точка {} была удалена из {}", point, component);
                             return component;
                         })
                         .forEach(component ->
                                 game.getAllComponents().merge(component.getId(), component, (v1, v2) -> v2));
                 log.debug("Результат мержа {} = {}", componentsAround, game.getAllComponents());
-                log.debug("Расширим текущую компоненту или создадим новую");
+            }
+            log.debug("Расширим текущую компоненту или создадим новую");
 
-                Optional<Component> nearestComponent =
-                        componentsAround.stream().findFirst();
-                if (nearestComponent.isPresent()) {
-                    log.debug("Расширим текущую компоненту");
-                    Component component = nearestComponent.get();
-                    killBugAtPoint(point, clientId, component.getId(), field);
-                } else {
-                    log.debug("Создадим новую компоненту");
+            Optional<Component> nearestComponent =
+                    componentsAround.stream().findFirst();
+            if (nearestComponent.isPresent()) {
+                Component component = nearestComponent.get();
+                killBugAtPoint(point, clientId, component.getId(), field);
+                log.debug("Текущаяя компонента была расширена: {}", nearestComponent);
+                // Надо подключать живых жуков вокруг
+            } else {
 
-                    Component newComponent = Component.builder()
-                            .id(UUID.randomUUID().toString())
-                            .aliveBugsAround(aliveAround.stream().map(c -> c.getBug().getPoint()).collect(Collectors.toList()))
-                            .owner(clientId)
-                            .build();
-                    game.getAllComponents().put(newComponent.getId(), newComponent);
-                    killBugAtPoint(point, clientId, newComponent.getId(), field);
-                }
+                Component newComponent = Component.builder()
+                        .id(UUID.randomUUID().toString())
+                        .aliveBugsAround(aliveAround.stream().map(c -> c.getBug().getPoint()).collect(Collectors.toList()))
+                        .owner(clientId)
+                        .build();
+                log.debug("Создадана новая компонента: {}", newComponent);
 
+                game.getAllComponents().put(newComponent.getId(), newComponent);
+                killBugAtPoint(point, clientId, newComponent.getId(), field);
             }
         }
         activeGames.replace(game.getGameDescription().getGameId(), game);
@@ -243,8 +247,13 @@ public class GameServiceImpl implements GameService {
     private List<FieldCell> getAllClientAliveBugsAround(FieldCell[][] field, Point point, String clientId) {
         List<FieldCell> bugs = new LinkedList<>();
 
-        for (int x = point.getX() - 1; x <= point.getX() + 1; x++) {
-            for (int y = point.getY() - 1; y <= point.getY() + 1; y++) {
+        int upperBoundX = Math.min(point.getX() + 1, field[0].length);
+        int lowerBoundX = Math.max(point.getX() - 1, 0);
+        int upperBoundY = Math.min(point.getY() + 1, field.length);
+        int lowerBoundY = Math.max(point.getY() - 1, 0);
+
+        for (int x = lowerBoundX; x <= upperBoundX; x++) {
+            for (int y = lowerBoundY; y <= upperBoundY; y++) {
                 if (point.getX() == x && point.getY() == y) {
                     continue;
                 }
@@ -259,12 +268,17 @@ public class GameServiceImpl implements GameService {
     private List<FieldCell> getAllKilledByClientBugsAround(FieldCell[][] field, Point point, String clientId) {
         List<FieldCell> bugs = new LinkedList<>();
 
-        for (int x = point.getX() - 1; x <= point.getX() + 1; x++) {
-            for (int y = point.getY() - 1; y <= point.getY() + 1; y++) {
+        int upperBoundX = Math.min(point.getX() + 1, field[0].length);
+        int lowerBoundX = Math.max(point.getX() - 1, 0);
+        int upperBoundY = Math.min(point.getY() + 1, field.length);
+        int lowerBoundY = Math.max(point.getY() - 1, 0);
+
+        for (int x = lowerBoundX; x <= upperBoundX; x++) {
+            for (int y = lowerBoundY; y <= upperBoundY; y++) {
                 if (point.getX() == x && point.getY() == y) {
                     continue;
                 }
-                if (!field[x][y].getBug().isAlive() && clientId.equals(field[x][y].getBug().getKillBy())) {
+                if (!field[x][y].isEmpty() && !field[x][y].getBug().isAlive() && clientId.equals(field[x][y].getBug().getKillBy())) {
                     bugs.add(field[x][y]);
                 }
             }
@@ -292,7 +306,6 @@ public class GameServiceImpl implements GameService {
 
     public static FieldCell[][] generateField(Map<String, ClientDescription> clientDescriptionMap) {
         FieldCell[][] field = new FieldCell[FIELD_SIZE_X][FIELD_SIZE_Y];
-        System.out.println("AGAIN AGAIN PAIN PAIN HALP");
         for (int i = 0; i < field.length; i++) {
             for (int j = 0; j < field[i].length; j++) {
                 field[i][j] = new FieldCell();
@@ -317,7 +330,7 @@ public class GameServiceImpl implements GameService {
 
     public static FieldCell[][] setBugAtPoint(Point point, final String clientId, FieldCell[][] field) {
         field[point.getX()][point.getY()].setBug(
-                Bug.builder().setBy(clientId).build());
+                Bug.builder().setBy(clientId).point(point).build());
         return field;
     }
 
@@ -326,6 +339,7 @@ public class GameServiceImpl implements GameService {
         killed.setKillBy(clientId);
         field[point.getX()][point.getY()].setBug(killed);
         field[point.getX()][point.getY()].setComponentId(componentId);
+        log.debug("Killed bug at {}", field[point.getX()][point.getY()]);
         return field;
     }
 }

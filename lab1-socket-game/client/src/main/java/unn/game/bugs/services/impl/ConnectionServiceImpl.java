@@ -14,11 +14,11 @@ import static unn.game.bugs.models.Constants.*;
 
 @Slf4j
 public class ConnectionServiceImpl implements ConnectionService {
+
     private final RenderingService renderingService = RenderingServiceImpl.getInstance();
     private static ConnectionServiceImpl instance = new ConnectionServiceImpl();
 
-    private ConnectionServiceImpl() {
-    }
+    private ConnectionServiceImpl() {}
 
     @Override
     public Client createConnection(String clientName) {
@@ -37,7 +37,9 @@ public class ConnectionServiceImpl implements ConnectionService {
     protected void processAfterConnection(Client client, String clientName) {
         ClientDescription description = new ClientDescription(clientName);
         client.setClientDescription(description);
-        client.sendMessage(ClientMessage.builder().clientDescription(description).build());
+        client.sendMessage(ClientMessage.builder()
+                                        .clientDescription(description)
+                                        .build());
     }
 
     public static ConnectionServiceImpl getInstance() {
