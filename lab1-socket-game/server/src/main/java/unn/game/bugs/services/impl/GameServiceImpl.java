@@ -25,7 +25,7 @@ import static unn.game.bugs.models.Constants.*;
 @Slf4j
 public class GameServiceImpl implements GameService {
 
-    // здесь нет базы, это взамен нее
+    /* Здесь нет базы, это взамен нее */
     private Map<String, Game> activeGames = new ConcurrentHashMap<>();
     private final ConnectionService connectionService = ConnectionServiceImpl.getInstance();
 
@@ -35,7 +35,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Thread createGame(List<Client> clientList) {
-        log.debug("Start creating game with clients: {}", clientList);
+        log.debug("Попытка создать игру для клиентов: {}", clientList);
 
         return new Thread(() -> {
             String uuid = UUID.randomUUID()
@@ -100,8 +100,8 @@ public class GameServiceImpl implements GameService {
                            .isClosed()) {
                     // ход
                     ClientMessage message = client.receiveMessage();
-                    log.debug("Receive message {} from client {}", message, client.getClientDescription()
-                                                                                  .getName());
+                    log.debug("Получено сообщение {} от клиента {}", message, client.getClientDescription()
+                                                                                    .getName());
                     // обработка хода должна быть синхронизированной
                     // словарь activeGames хранит актуальное(!) состояние каждой
                     // игры
@@ -250,8 +250,7 @@ public class GameServiceImpl implements GameService {
                                                       .merge(component.getId(), component, (v1, v2) -> v2));
 
         } else {
-            log.debug("Убиываем");
-
+            log.debug("Убивает жука!");
             log.debug("Есть ли рядом компоненты убиваемого?");
             List<FieldCell> componentsKilledBug = getAllKilledByClientBugsAround(field, point, field[x][y].getBug()
                                                                                                           .getSetBy());
@@ -354,9 +353,9 @@ public class GameServiceImpl implements GameService {
     private List<FieldCell> getAllClientAliveBugsAround(FieldCell[][] field, Point point, String clientId) {
         List<FieldCell> bugs = new LinkedList<>();
 
-        int upperBoundX = Math.min(point.getX() + 1, field[0].length);
+        int upperBoundX = Math.min(point.getX() + 1, field[0].length-1);
         int lowerBoundX = Math.max(point.getX() - 1, 0);
-        int upperBoundY = Math.min(point.getY() + 1, field.length);
+        int upperBoundY = Math.min(point.getY() + 1, field.length-1);
         int lowerBoundY = Math.max(point.getY() - 1, 0);
 
         for (int x = lowerBoundX; x <= upperBoundX; x++) {
@@ -378,9 +377,9 @@ public class GameServiceImpl implements GameService {
     private List<FieldCell> getAllKilledByClientBugsAround(FieldCell[][] field, Point point, String clientId) {
         List<FieldCell> bugs = new LinkedList<>();
 
-        int upperBoundX = Math.min(point.getX() + 1, field[0].length);
+        int upperBoundX = Math.min(point.getX() + 1, field[0].length -1);
         int lowerBoundX = Math.max(point.getX() - 1, 0);
-        int upperBoundY = Math.min(point.getY() + 1, field.length);
+        int upperBoundY = Math.min(point.getY() + 1, field.length -1);
         int lowerBoundY = Math.max(point.getY() - 1, 0);
 
         for (int x = lowerBoundX; x <= upperBoundX; x++) {
@@ -551,7 +550,6 @@ public class GameServiceImpl implements GameService {
         killed.setKillBy(clientId);
         field[point.getX()][point.getY()].setBug(killed);
         field[point.getX()][point.getY()].setComponentId(componentId);
-        log.debug("Killed bug at {}", field[point.getX()][point.getY()]);
         return field;
     }
 

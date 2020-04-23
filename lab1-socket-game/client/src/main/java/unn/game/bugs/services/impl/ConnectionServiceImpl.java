@@ -22,16 +22,15 @@ public class ConnectionServiceImpl implements ConnectionService {
 
     @Override
     public Client createConnection(String clientName) {
-        Client client = null;
         try {
-            client = new Client(new Socket("127.0.0.1", SERVER_PORT));
+            Client client = new Client(new Socket("127.0.0.1", SERVER_PORT));
             this.processAfterConnection(client, clientName);
             return client;
         } catch (IOException e) {
             log.error(CREATE_CONNECTION_ERROR + ": " + e.getMessage());
             renderingService.buildErrorScene(CREATE_CONNECTION_ERROR);
+            return null;
         }
-        return client;
     }
 
     protected void processAfterConnection(Client client, String clientName) {

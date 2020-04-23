@@ -18,10 +18,12 @@ import java.util.ResourceBundle;
 
 public class EntryPointController implements Initializable {
 
-    @FXML private TextField clientNameTextField;
-
-    @FXML private Button startGameButton;
-    @FXML private Label errorMessage;
+    @FXML
+    private TextField clientNameTextField;
+    @FXML
+    private Button startGameButton;
+    @FXML
+    private Label errorMessage;
 
     private final ConnectionService connectionService = ConnectionServiceImpl.getInstance();
     private final GameService gameService = GameServiceImpl.getInstance();
@@ -34,17 +36,18 @@ public class EntryPointController implements Initializable {
             if (StringUtils.isEmpty(clientNameTextField.getCharacters())) {
                 errorMessage.setVisible(true);
             } else {
-               // (new Thread(() -> {
+                (new Thread(() -> {
                     Client client = connectionService.createConnection(clientNameTextField.getCharacters()
                                                                                           .toString());
-                //    Platform.runLater(() -> new Thread(() -> {
+                    /* Нужно для обновления интерфейса */
+                    Platform.runLater(() -> {
                         gameService.startGame(client);
 
                         startGameButton.getScene()
                                        .getWindow()
                                        .hide();
-               //     }));
-            //    })).start();
+                    });
+                })).start();
             }
         });
     }

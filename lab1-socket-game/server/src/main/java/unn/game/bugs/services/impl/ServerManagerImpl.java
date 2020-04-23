@@ -33,7 +33,7 @@ public class ServerManagerImpl implements ServerManager {
     @Override
     public void startGameSession() {
         gameService.createGame(connectionService.getPendingClientsAndClear()).start();
-        log.debug("There are enough pending clients: game was started");
+        log.debug("Набралось достаточно ожидающих клиентов: начинаем игру");
     }
 
     @Override

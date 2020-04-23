@@ -26,8 +26,7 @@ public class GameServiceImpl implements GameService {
         this.client = client;
         ServerMessage serverMessage = client.receiveMessage();
 
-        this.renderingService.buildGameScene(serverMessage.getGameDescription(),
-                                             serverMessage.getAllClients(),
+        this.renderingService.buildGameScene(serverMessage.getGameDescription(), serverMessage.getAllClients(),
                                              client.getClientDescription());
 
         this.getGameTread()
@@ -54,7 +53,8 @@ public class GameServiceImpl implements GameService {
         return new Thread(() -> {
             while (true) {
                 ServerMessage message = client.receiveMessage();
-                log.info("Receive message: {}", message);
+                log.debug("Получение соощения: {}", message);
+
                 if (message != null) {
                     renderingService.drawActionMessage(message.getMessage());
                     renderingService.drawMoveMessage(client.getClientDescription()

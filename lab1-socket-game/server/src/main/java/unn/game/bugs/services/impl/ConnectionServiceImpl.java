@@ -26,7 +26,7 @@ public class ConnectionServiceImpl implements ConnectionService {
         // если от клиентов необходимо прочитать какое то "приветственное
         // сообщение", то тогда придется
         pendingClients.add(new Client(clientSocket));
-        log.debug("Socket was added in pending list");
+        log.debug("Сокет был добавлен в список ожидания");
         if (pendingClients.size() == Constants.PLAYERS_COUNT) {
             return true;
         }
@@ -35,7 +35,7 @@ public class ConnectionServiceImpl implements ConnectionService {
 
     @Override
     public <T> void broadcast(List<Client> clients, T message) {
-        log.debug("Broadcast message {} among clients {}", message, clients);
+        log.debug("Рассылка сообщения {} среди клиентов {}", message, clients);
         clients.stream()
                .filter(client -> client.getClientDescription()
                                         .isActive())

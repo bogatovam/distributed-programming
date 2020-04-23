@@ -52,8 +52,6 @@ public class RenderingServiceImpl implements RenderingService {
                                                         .divide(gameDescription.getField()[0].length)
                                                         .doubleValue();
 
-            log.debug("Scales [x,y]: [{},{}]", this.scale_x, this.scale_y);
-
             this.drawGameField(gameDescription, allClients);
             this.drawActivePlayers(new ArrayList<>(allClients.values()));
             this.drawCurrentPlayer(clientDescription);
@@ -211,7 +209,7 @@ public class RenderingServiceImpl implements RenderingService {
         Platform.runLater(new Thread(() -> {
             gameController.moveMessage.setVisible(false);
             gameController.actionMessage.setTextFill(Color.GREEN);
-            gameController.actionMessage.setText("Вы выиграли! Игра закончена");
+            gameController.actionMessage.setText("Вы выиграли!");
         }));
     }
 
@@ -220,7 +218,7 @@ public class RenderingServiceImpl implements RenderingService {
         Platform.runLater(new Thread(() -> {
             gameController.moveMessage.setVisible(false);
             gameController.actionMessage.setTextFill(Color.RED);
-            gameController.actionMessage.setText("Вы проиграли! Игра закончена");
+            gameController.actionMessage.setText("Вы проиграли!");
         }));
     }
 
