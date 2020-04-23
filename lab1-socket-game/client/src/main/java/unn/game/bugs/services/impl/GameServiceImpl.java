@@ -17,6 +17,8 @@ public class GameServiceImpl implements GameService {
 
     private Client client;
 
+    private boolean isGameFinished = false;
+
     private GameServiceImpl() {}
 
     @Override
@@ -39,11 +41,13 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void makeMove(double x, double y) {
-        ClientMessage message = ClientMessage.builder()
-                                             .clientDescription(client.getClientDescription())
-                                             .point(renderingService.getFieldPointByCanvasCoords(x, y))
-                                             .build();
-        client.sendMessage(message);
+        if (!isGameFinished) {
+            ClientMessage message = ClientMessage.builder()
+                                                 .clientDescription(client.getClientDescription())
+                                                 .point(renderingService.getFieldPointByCanvasCoords(x, y))
+                                                 .build();
+            client.sendMessage(message);
+        }
     }
 
     private Thread getGameTread() {
@@ -54,14 +58,29 @@ public class GameServiceImpl implements GameService {
                 if (message != null) {
                     renderingService.drawActionMessage(message.getMessage());
                     renderingService.drawMoveMessage(client.getClientDescription()
-                                                           .getId(), message.getGameDescription());
+                                                           .getId(),
+                                                     message.getGameDescription());
 
                     if (message.getMessage() != null && message.getMessage()
                                                                .equals(ResultMessage.ACTION_APPLIED)) {
-                        this.renderingService.drawGameField(message.getGameDescription(),
-                                                            message.getAllClients());
+                        this.renderingService.drawGameField(message.getGameDescription(), message.getAllClients());
+                    } else if (message.getMessage()
+                                      .equals(ResultMessage.WIN)) {
+                        this.renderingService.drawGameField(message.getGameDescription(), message.getAllClients());
+                        this.renderingService.drawWinMessage();
+                        isGameFinished = true;
+                        break;
+                    } else if (message.getMessage()
+                                      .equals(ResultMessage.LOSE)) {
+                        this.renderingService.drawGameField(message.getGameDescription(), message.getAllClients());
+                        this.renderingService.drawLoseMessage();
+                        isGameFinished = true;
+                        break;
                     }
-                } else break;
+                } else {
+                    isGameFinished = true;
+                    break;
+                } ;
             }
         });
     }

@@ -10,10 +10,12 @@ public class ClientDescription implements Serializable {
     private String id;
     private String name;
     private Color color;
+    private boolean active = true;
 
     public ClientDescription(final String name) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.color = new Color(Math.random(), Math.random(), Math.random());
     }
+
 }

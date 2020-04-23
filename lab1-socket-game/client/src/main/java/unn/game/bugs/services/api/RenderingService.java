@@ -25,4 +25,7 @@ public interface RenderingService {
 
     void drawMoveMessage(final String clientId, GameDescription gameDescription);
 
+    void drawWinMessage();
+
+    void drawLoseMessage();
 }

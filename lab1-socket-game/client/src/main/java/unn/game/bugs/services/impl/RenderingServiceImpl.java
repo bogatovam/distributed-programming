@@ -31,8 +31,7 @@ public class RenderingServiceImpl implements RenderingService {
     private double scale_x;
     private double scale_y;
 
-    private RenderingServiceImpl() {
-    }
+    private RenderingServiceImpl() {}
 
     @Override
     public void buildGameScene(GameDescription gameDescription, Map<String, ClientDescription> allClients,
@@ -72,7 +71,7 @@ public class RenderingServiceImpl implements RenderingService {
 
             Stage stage = new Stage();
             stage.setTitle("ERROR");
-            stage.setScene(new Scene(loader.load()/*, 450, 450*/));
+            stage.setScene(new Scene(loader.load()/* , 450, 450 */));
 
             ErrorsController controller = loader.getController();
             controller.initData(errorMessage);
@@ -98,30 +97,22 @@ public class RenderingServiceImpl implements RenderingService {
                 if (!gameDescription.getField()[i][j].isEmpty()) {
                     if (gameDescription.getField()[i][j].getBug()
                                                         .isAlive()) {
-                        ClientDescription clientDescription =
-                                allClients.get(gameDescription.getField()[i][j].getBug()
-                                                                               .getSetBy());
-                        this.drawBugCell(i * scale_x + 5,
-                                         j * scale_y + 5,
-                                         scale_x - 10,
-                                         scale_y - 10,
-                                         Color.color(clientDescription.getColor()
-                                                                      .getR(),
-                                                     clientDescription.getColor()
-                                                                      .getG(),
-                                                     clientDescription.getColor()
-                                                                      .getB()));
+                        ClientDescription clientDescription = allClients.get(gameDescription.getField()[i][j].getBug()
+                                                                                                             .getSetBy());
+                        this.drawBugCell(i * scale_x + 5, j * scale_y + 5, scale_x - 10, scale_y
+                                - 10, Color.color(clientDescription.getColor()
+                                                                   .getR(),
+                                                  clientDescription.getColor()
+                                                                   .getG(),
+                                                  clientDescription.getColor()
+                                                                   .getB()));
                     } else {
                         ClientDescription diedClientDescription =
                                 allClients.get(gameDescription.getField()[i][j].getBug()
                                                                                .getSetBy());
-                        ClientDescription clientDescription =
-                                allClients.get(gameDescription.getField()[i][j].getBug()
-                                                                               .getKillBy());
-                        this.drawDiedBugCell(i * scale_x + 1,
-                                             j * scale_y + 1,
-                                             scale_x,
-                                             scale_y,
+                        ClientDescription clientDescription = allClients.get(gameDescription.getField()[i][j].getBug()
+                                                                                                             .getKillBy());
+                        this.drawDiedBugCell(i * scale_x + 1, j * scale_y + 1, scale_x, scale_y,
                                              Color.color(diedClientDescription.getColor()
                                                                               .getR(),
                                                          diedClientDescription.getColor()
@@ -213,7 +204,24 @@ public class RenderingServiceImpl implements RenderingService {
 
             gameController.moveMessage.setVisible(true);
         }));
+    }
 
+    @Override
+    public void drawWinMessage() {
+        Platform.runLater(new Thread(() -> {
+            gameController.moveMessage.setVisible(false);
+            gameController.actionMessage.setTextFill(Color.GREEN);
+            gameController.actionMessage.setText("Вы выиграли! Игра закончена");
+        }));
+    }
+
+    @Override
+    public void drawLoseMessage() {
+        Platform.runLater(new Thread(() -> {
+            gameController.moveMessage.setVisible(false);
+            gameController.actionMessage.setTextFill(Color.RED);
+            gameController.actionMessage.setText("Вы проиграли! Игра закончена");
+        }));
     }
 
     public static RenderingServiceImpl getInstance() {
